@@ -5,12 +5,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: build # Target the build stage for development
+    volumes: # Mount volumes for development
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./webpack.config.js:/app/webpack.config.js # Mount webpack config
     ports:
-      - "8080:80" # Map host port 8080 to container port 80 (Nginx default)
+      - "3000:3000" # Map host 3000 to container dev server port 3000
     environment:
-      # Pass environment variables if needed, e.g., API base URL for production
-      # API_URL: http://mock-api:3001
-      NODE_ENV: production
+      NODE_ENV: development # Set environment to development
+      CHOKIDAR_USEPOLLING: "true" # Often needed for Docker volume hot-reloading
+    # Override the default command (Nginx) to run the dev server
+    # Ensure 'npm run dev' script exists in package.json and runs webpack-dev-server
+    command: npm run dev
     depends_on:
       - mock_api # Ensure mock API starts before frontend attempts connection in some scenarios
 

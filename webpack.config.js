@@ -25,30 +25,29 @@ module.exports = {
       },
       // Add loaders for CSS, images, etc. here if needed later
       {
-        test: /\.module\.css$/i, // Target .module.css files
+        test: /\.module\.css$/,
         use: [
-          "style-loader", // Injects styles into DOM
+          "style-loader",
           {
-            loader: "css-loader", // Translates CSS into CommonJS
+            loader: "css-loader",
             options: {
-              modules: {
-                localIdentName: "[name]__[local]--[hash:base64:5]", // Generate unique class names
-              },
               importLoaders: 1,
+              modules: {
+                mode: "local",
+                localIdentName: "[name]__[local]___[hash:base64:5]",
+                exportLocalsConvention: "camelCase",
+                exportOnlyLocals: false,
+                namedExport: false,
+              },
             },
           },
         ],
       },
-      // Optional: Add rule for global CSS files (not modules)
-      // {
-      //   test: /\.css$/i,
-      //   exclude: /\.module\.css$/i, // Exclude module files
-      //   use: ['style-loader', 'css-loader'],
-      // },
-      // {
-      //   test: /\.(png|svg|jpg|jpeg|gif)$/i,
-      //   type: 'asset/resource',
-      // },
+      {
+        test: /\.css$/,
+        exclude: /\.module\.css$/,
+        use: ["style-loader", "css-loader"],
+      },
     ],
   },
   plugins: [
@@ -70,5 +69,5 @@ module.exports = {
   },
   // Use 'source-map' for development for better debugging
   // Use other options like 'cheap-module-source-map' for production if needed
-  devtool: process.env.NODE_ENV === "production" ? undefined : "source-map",
+  devtool: "source-map",
 };
