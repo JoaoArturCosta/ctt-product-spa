@@ -1,0 +1,38 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: ["master", "main"] # Trigger on pushes to master/main
+  pull_request:
+    branches: ["master", "main"] # Trigger on PRs targeting master/main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x] # Test on relevant LTS Node versions
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm" # Cache npm dependencies
+
+      - name: Install dependencies
+        run: npm ci # Use ci for faster, more reliable installs in CI
+
+      # Add linting step if a linter (e.g., ESLint) is configured
+      # - name: Lint code
+      #   run: npm run lint
+
+      - name: Run tests
+        run: npm test -- --coverage # Add coverage flag if desired
+
+      - name: Build project
+        run: npm run build
