@@ -74,8 +74,6 @@ export const fetchProducts = async (): Promise<Product[]> => {
   return request<Product[]>("/products", "GET", undefined, "fetch products");
 };
 
-// Add functions for addProduct, updateProduct, deleteProduct later in Phase 3
-
 // Define the type for the data needed to create a product (omit id)
 export type NewProductData = Omit<Product, "id">;
 
@@ -90,8 +88,6 @@ export const addProduct = async (
 ): Promise<Product> => {
   return request<Product>("/products", "POST", productData, "add product");
 };
-
-// Add functions for updateProduct, deleteProduct later in Phase 3
 
 // Define the type for the data needed to update a product (can be partial)
 export type UpdateProductData = Partial<Omit<Product, "id">>;
@@ -114,8 +110,6 @@ export const updateProduct = async (
     `update product ${productId}`
   );
 };
-
-// Add function for deleteProduct later
 
 /**
  * Deletes a product via the mock API.

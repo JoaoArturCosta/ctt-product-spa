@@ -6,9 +6,9 @@ import {
   addProductFailure,
 } from "../productSlice";
 import { addProduct, NewProductData } from "../api";
-import { validateProductData, ProductFormData } from "../validation"; // Import validator
-import InputField from "@/components/InputField/InputField"; // Import InputField
-import styles from "./AddProductForm.module.css"; // Import CSS Module
+import { validateProductData, ProductFormData } from "../validation";
+import InputField from "@/components/InputField/InputField";
+import styles from "./AddProductForm.module.css";
 
 const AddProductForm: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -38,7 +38,6 @@ const AddProductForm: React.FC = () => {
     e.preventDefault();
     setError(null); // Clear previous errors
 
-    // Use the validation utility
     const validationError = validateProductData(formData);
     if (validationError) {
       setError(validationError);
@@ -49,11 +48,10 @@ const AddProductForm: React.FC = () => {
     dispatch(addProductStart());
 
     try {
-      // Assert types here as validation has already passed
       const newProductData: NewProductData = {
-        description: formData.description as string, // Assert description is a string
-        price: formData.price as number, // Assert price is a number
-        stock: formData.stock as number, // Assert stock is a number
+        description: formData.description!,
+        price: formData.price!,
+        stock: formData.stock!,
         categories: [],
       };
       const addedProduct = await addProduct(newProductData);

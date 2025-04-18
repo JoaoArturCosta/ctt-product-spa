@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent } from "react";
-import { Product } from "../productSlice"; // Import Product type
+import { Product } from "../productSlice";
 import { useAppDispatch } from "@/store/hooks";
 import {
   updateProductStart,
@@ -10,9 +10,9 @@ import {
   deleteProductFailure,
 } from "../productSlice";
 import { updateProduct, UpdateProductData, deleteProduct } from "../api";
-import { validateProductData } from "../validation"; // Import validator
-import InputField from "@/components/InputField/InputField"; // Import InputField
-import styles from "./ProductItem.module.css"; // Import CSS Module
+import { validateProductData } from "../validation";
+import InputField from "@/components/InputField/InputField";
+import styles from "./ProductItem.module.css";
 
 interface ProductItemProps {
   product: Product;
@@ -36,8 +36,8 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
       });
       setEditError(null); // Clear any previous edit errors
     } else {
-      // Optionally reset changes if cancelling
-      // setEditData({});
+      // reset changes if cancelling
+      setEditData({});
     }
     setIsEditing(!isEditing);
   };
@@ -51,7 +51,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
       processedValue = value === "" ? "" : parseFloat(value);
     } else if (name === "stock") {
       processedValue = value === "" ? "" : parseInt(value, 10);
-    } // Categories could be handled here if editable
+    }
 
     setEditData((prev) => ({ ...prev, [name]: processedValue }));
     setEditError(null); // Clear error on input change
@@ -64,7 +64,6 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
     const validationError = validateProductData(editData);
     if (validationError) {
       setEditError(validationError);
-      // alert(validationError); // Use local state instead of alert
       return;
     }
 
@@ -153,7 +152,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
               min="0"
               required
               placeholder="Price"
-              className={styles.editInputFlex} // Add flex class via prop
+              className={styles.editInputFlex}
             />
             {/* Use InputField for Stock */}
             <InputField
@@ -167,7 +166,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
               min="0"
               required
               placeholder="Stock"
-              className={styles.editInputFlex} // Add flex class via prop
+              className={styles.editInputFlex}
             />
           </div>
           <div className={styles.buttonRow}>
@@ -195,8 +194,12 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
             </strong>
             <span>Price: ${product.price.toFixed(2)}</span>
             <span className={styles.stock}>Stock: {product.stock}</span>
-            {/* Display categories if needed */}
-            {/* <span style={{ marginLeft: '15px' }}> - Categories: {product.categories.join(', ')}</span> */}
+
+            {product.categories.length > 0 && (
+              <span style={{ marginLeft: "15px" }}>
+                - Categories: {product.categories.join(", ")}
+              </span>
+            )}
           </div>
           <div className={styles.buttonRow}>
             <button onClick={handleEditToggle} className={styles.button}>

@@ -23,7 +23,7 @@ module.exports = {
         use: "ts-loader",
         exclude: /node_modules/,
       },
-      // Add loaders for CSS, images, etc. here if needed later
+      // Add loaders for CSS, images, etc. here
       {
         test: /\.module\.css$/,
         use: [
@@ -53,7 +53,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "./public/index.html", // Template HTML file
-      favicon: "./public/favicon.ico", // Optional: Add favicon path if you have one
+      favicon: "./public/favicon.ico", // Optional: Add favicon path if we have one
       inject: "body", // Explicitly inject scripts at the end of the body
     }),
   ],

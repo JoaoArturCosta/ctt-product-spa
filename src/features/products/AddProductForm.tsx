@@ -45,12 +45,9 @@ const AddProductForm: React.FC = () => {
       setPrice("");
       setStock("");
       setCategories("");
-      // Optionally show a success message
     } catch (err: any) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       dispatch(addProductFailure(errorMessage));
-      // Error state is handled globally (displayed by ProductList),
-      // but could show local error here too
     }
   };
 
