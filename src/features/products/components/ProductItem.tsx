@@ -11,6 +11,7 @@ import {
 } from "../productSlice";
 import { updateProduct, UpdateProductData, deleteProduct } from "../api";
 import { validateProductData } from "../validation"; // Import validator
+import InputField from "@/components/InputField/InputField"; // Import InputField
 import styles from "./ProductItem.module.css"; // Import CSS Module
 
 interface ProductItemProps {
@@ -128,37 +129,45 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
           {editError && (
             <p style={{ color: "red", fontSize: "0.9em" }}>{editError}</p>
           )}
-          <input
-            type="text"
+          {/* Use InputField for Description */}
+          <InputField
+            id={`description-${product.id}`} // Ensure unique ID for accessibility
             name="description"
+            label="Description:"
             value={editData.description ?? ""}
             onChange={handleInputChange}
-            placeholder="Description"
             required
-            className={styles.editInput} // Apply base input style
+            placeholder="Description"
+            className={styles.editInput} // Pass specific class if needed, else rely on InputField's default
           />
           <div className={styles.editRow}>
-            {" "}
-            {/* Row for price/stock */}
-            <input
-              type="number"
+            {/* Use InputField for Price */}
+            <InputField
+              id={`price-${product.id}`}
               name="price"
-              step="0.01"
+              label="Price:"
+              type="number"
               value={editData.price ?? ""}
               onChange={handleInputChange}
-              placeholder="Price"
+              step="0.01"
+              min="0"
               required
-              className={`${styles.editInput} ${styles.editInputFlex}`} // Combine classes
+              placeholder="Price"
+              className={styles.editInputFlex} // Add flex class via prop
             />
-            <input
-              type="number"
+            {/* Use InputField for Stock */}
+            <InputField
+              id={`stock-${product.id}`}
               name="stock"
-              step="1"
+              label="Stock:"
+              type="number"
               value={editData.stock ?? ""}
               onChange={handleInputChange}
-              placeholder="Stock"
+              step="1"
+              min="0"
               required
-              className={`${styles.editInput} ${styles.editInputFlex}`} // Combine classes
+              placeholder="Stock"
+              className={styles.editInputFlex} // Add flex class via prop
             />
           </div>
           <div className={styles.buttonRow}>

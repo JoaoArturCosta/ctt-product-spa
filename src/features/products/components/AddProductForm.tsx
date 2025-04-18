@@ -7,6 +7,7 @@ import {
 } from "../productSlice";
 import { addProduct, NewProductData } from "../api";
 import { validateProductData, ProductFormData } from "../validation"; // Import validator
+import InputField from "@/components/InputField/InputField"; // Import InputField
 import styles from "./AddProductForm.module.css"; // Import CSS Module
 
 const AddProductForm: React.FC = () => {
@@ -72,49 +73,39 @@ const AddProductForm: React.FC = () => {
     <form onSubmit={handleSubmit} className={styles.formContainer}>
       <h3 className={styles.formTitle}>Add New Product</h3>
       {error && <p className={styles.errorMessage}>{error}</p>}
-      <div className={styles.inputGroup}>
-        <label htmlFor="description">Description:</label>
-        <input
-          type="text"
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-          disabled={isSubmitting}
-          className={styles.input}
-        />
-      </div>
-      <div className={styles.inputGroup}>
-        <label htmlFor="price">Price:</label>
-        <input
-          type="number"
-          id="price"
-          name="price"
-          step="0.01"
-          min="0"
-          value={formData.price}
-          onChange={handleChange}
-          required
-          disabled={isSubmitting}
-          className={styles.input}
-        />
-      </div>
-      <div className={styles.inputGroup}>
-        <label htmlFor="stock">Stock:</label>
-        <input
-          type="number"
-          id="stock"
-          name="stock"
-          step="1"
-          min="0"
-          value={formData.stock}
-          onChange={handleChange}
-          required
-          disabled={isSubmitting}
-          className={styles.input}
-        />
-      </div>
+      <InputField
+        id="description"
+        name="description"
+        label="Description:"
+        value={formData.description}
+        onChange={handleChange}
+        required
+        disabled={isSubmitting}
+      />
+      <InputField
+        id="price"
+        name="price"
+        label="Price:"
+        type="number"
+        value={formData.price}
+        onChange={handleChange}
+        step="0.01"
+        min="0"
+        required
+        disabled={isSubmitting}
+      />
+      <InputField
+        id="stock"
+        name="stock"
+        label="Stock:"
+        type="number"
+        value={formData.stock}
+        onChange={handleChange}
+        step="1"
+        min="0"
+        required
+        disabled={isSubmitting}
+      />
       <button
         type="submit"
         disabled={isSubmitting}
