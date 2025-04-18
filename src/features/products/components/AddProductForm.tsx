@@ -6,11 +6,12 @@ import {
   addProductFailure,
 } from "../productSlice";
 import { addProduct, NewProductData } from "../api";
+import { validateProductData, ProductFormData } from "../validation"; // Import validator
 import styles from "./AddProductForm.module.css"; // Import CSS Module
 
 const AddProductForm: React.FC = () => {
   const dispatch = useAppDispatch();
-  const [formData, setFormData] = useState<Omit<NewProductData, "categories">>({
+  const [formData, setFormData] = useState<ProductFormData>({
     description: "",
     price: 0,
     stock: 0,
@@ -36,17 +37,10 @@ const AddProductForm: React.FC = () => {
     e.preventDefault();
     setError(null); // Clear previous errors
 
-    // Basic validation
-    if (
-      !formData.description ||
-      isNaN(formData.price) ||
-      formData.price < 0 ||
-      !Number.isInteger(formData.stock) ||
-      formData.stock < 0
-    ) {
-      setError(
-        "Description must be filled, Price and Stock must be valid non-negative numbers."
-      );
+    // Use the validation utility
+    const validationError = validateProductData(formData);
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -54,9 +48,11 @@ const AddProductForm: React.FC = () => {
     dispatch(addProductStart());
 
     try {
-      // Add empty categories array for now, as per NewProductData requirement
+      // Assert types here as validation has already passed
       const newProductData: NewProductData = {
-        ...formData,
+        description: formData.description as string, // Assert description is a string
+        price: formData.price as number, // Assert price is a number
+        stock: formData.stock as number, // Assert stock is a number
         categories: [],
       };
       const addedProduct = await addProduct(newProductData);

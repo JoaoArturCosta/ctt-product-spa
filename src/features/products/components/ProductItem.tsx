@@ -10,6 +10,7 @@ import {
   deleteProductFailure,
 } from "../productSlice";
 import { updateProduct, UpdateProductData, deleteProduct } from "../api";
+import { validateProductData } from "../validation"; // Import validator
 import styles from "./ProductItem.module.css"; // Import CSS Module
 
 interface ProductItemProps {
@@ -19,18 +20,23 @@ interface ProductItemProps {
 const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
-  // Local state for edited values
+  // Use UpdateProductData which aligns with validation input type
   const [editData, setEditData] = useState<UpdateProductData>({});
+  const [editError, setEditError] = useState<string | null>(null); // Local error state for edit form
 
   const handleEditToggle = () => {
     if (!isEditing) {
-      // Reset editData when entering edit mode, prefill with current product data
+      // Pre-fill edit data when entering edit mode
       setEditData({
         description: product.description,
         price: product.price,
         stock: product.stock,
-        categories: product.categories, // Keep categories simple for now
+        // Exclude categories for now
       });
+      setEditError(null); // Clear any previous edit errors
+    } else {
+      // Optionally reset changes if cancelling
+      // setEditData({});
     }
     setIsEditing(!isEditing);
   };
@@ -47,35 +53,34 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
     } // Categories could be handled here if editable
 
     setEditData((prev) => ({ ...prev, [name]: processedValue }));
+    setEditError(null); // Clear error on input change
   };
 
   const handleSave = async () => {
-    // Basic validation: check if required fields are present and valid in editData
-    if (
-      !editData.description || // Check description is not empty
-      editData.price === undefined ||
-      isNaN(Number(editData.price)) ||
-      Number(editData.price) < 0 || // Check price is a non-negative number
-      editData.stock === undefined ||
-      !Number.isInteger(editData.stock) ||
-      Number(editData.stock) < 0 // Check stock is a non-negative integer
-    ) {
-      alert(
-        "Description must be filled, Price and Stock must be valid non-negative numbers."
-      );
+    setEditError(null); // Clear previous errors
+
+    // Validate the current editData
+    const validationError = validateProductData(editData);
+    if (validationError) {
+      setEditError(validationError);
+      // alert(validationError); // Use local state instead of alert
       return;
     }
 
-    // Filter out any fields that weren't actually changed
+    // Filter out any fields that weren't actually changed to send minimal payload
     const changes: UpdateProductData = {};
     if (editData.description !== product.description)
       changes.description = editData.description;
-    // Ensure we compare numbers after converting editData value
-    if (Number(editData.price) !== product.price)
+    if (
+      editData.price !== undefined &&
+      Number(editData.price) !== product.price
+    )
       changes.price = Number(editData.price);
-    if (Number(editData.stock) !== product.stock)
+    if (
+      editData.stock !== undefined &&
+      Number(editData.stock) !== product.stock
+    )
       changes.stock = Number(editData.stock);
-    // Add categories changes if implemented
 
     if (Object.keys(changes).length === 0) {
       setIsEditing(false); // No changes, just exit edit mode
@@ -87,12 +92,12 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
       // Pass only the changed data to the API
       const updated = await updateProduct(product.id, changes);
       dispatch(updateProductSuccess(updated));
-      setIsEditing(false);
+      setIsEditing(false); // Exit edit mode on success
+      setEditError(null);
     } catch (err: any) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       dispatch(updateProductFailure(product.id, errorMessage));
-      // Optionally revert local state or show error locally
-      // For now, global error state is handled by ProductList
+      setEditError(`Save failed: ${errorMessage}`); // Show error locally in edit form
     }
   };
 
@@ -119,6 +124,10 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
     <li className={styles.listItem}>
       {isEditing ? (
         <div className={styles.editModeContainer}>
+          {/* Display edit error if present */}
+          {editError && (
+            <p style={{ color: "red", fontSize: "0.9em" }}>{editError}</p>
+          )}
           <input
             type="text"
             name="description"
