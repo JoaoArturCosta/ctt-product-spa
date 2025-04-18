@@ -6,6 +6,9 @@ import {
   addProductStart,
   addProductSuccess,
   addProductFailure,
+  updateProductStart,
+  updateProductSuccess,
+  updateProductFailure,
   ProductsState,
   Product,
 } from "./productSlice";
@@ -41,6 +44,12 @@ const newProduct: Product = {
   price: 30,
   stock: 15,
   categories: ["cat1", "cat3"],
+};
+
+const updatedProduct: Product = {
+  ...mockProducts[0], // Base on the first mock product
+  description: "Updated Test Product 1",
+  stock: 8,
 };
 
 describe("productsReducer", () => {
@@ -131,5 +140,60 @@ describe("productsReducer", () => {
     expect(productsReducer(previousState, addProductFailure(errorMsg))).toEqual(
       expectedState
     );
+  });
+
+  it("should handle updateProductStart", () => {
+    const previousState: ProductsState = {
+      ...initialState,
+      error: "Previous error",
+    };
+    const expectedState: ProductsState = {
+      ...initialState,
+      isLoading: true,
+      error: null,
+    };
+    expect(productsReducer(previousState, updateProductStart())).toEqual(
+      expectedState
+    );
+  });
+
+  it("should handle updateProductSuccess", () => {
+    // State contains both original mock products
+    const previousState: ProductsState = {
+      ...initialState,
+      items: mockProducts,
+      isLoading: true,
+    };
+    const expectedState: ProductsState = {
+      ...initialState,
+      isLoading: false,
+      // The first product should be replaced by updatedProduct
+      items: [updatedProduct, mockProducts[1]],
+    };
+    expect(
+      productsReducer(previousState, updateProductSuccess(updatedProduct))
+    ).toEqual(expectedState);
+  });
+
+  it("should handle updateProductFailure", () => {
+    const previousState: ProductsState = {
+      ...initialState,
+      items: mockProducts,
+      isLoading: true,
+    };
+    const errorMsg = "Failed to update";
+    const productIdToFail = mockProducts[0].id;
+    const expectedState: ProductsState = {
+      ...initialState,
+      items: mockProducts,
+      isLoading: false,
+      error: errorMsg,
+    };
+    expect(
+      productsReducer(
+        previousState,
+        updateProductFailure(productIdToFail, errorMsg)
+      )
+    ).toEqual(expectedState);
   });
 });

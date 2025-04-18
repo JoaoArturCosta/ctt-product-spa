@@ -22,7 +22,10 @@ export const FETCH_PRODUCTS_FAILURE = "products/fetchFailure";
 export const ADD_PRODUCT_START = "products/addStart";
 export const ADD_PRODUCT_SUCCESS = "products/addSuccess";
 export const ADD_PRODUCT_FAILURE = "products/addFailure";
-// Add action types for CRUD operations later (ADD, UPDATE, DELETE)
+export const UPDATE_PRODUCT_START = "products/updateStart";
+export const UPDATE_PRODUCT_SUCCESS = "products/updateSuccess";
+export const UPDATE_PRODUCT_FAILURE = "products/updateFailure";
+// Add action types for DELETE later
 
 // 3. Define Action Creators
 interface FetchProductsStartAction
@@ -45,13 +48,28 @@ interface AddProductFailureAction extends Action<typeof ADD_PRODUCT_FAILURE> {
   payload: string;
 }
 
+// Update Product Actions
+interface UpdateProductStartAction
+  extends Action<typeof UPDATE_PRODUCT_START> {}
+interface UpdateProductSuccessAction
+  extends Action<typeof UPDATE_PRODUCT_SUCCESS> {
+  payload: Product; // Payload is the updated product
+}
+interface UpdateProductFailureAction
+  extends Action<typeof UPDATE_PRODUCT_FAILURE> {
+  payload: { productId: string; error: string }; // Include ID for context
+}
+
 export type ProductActionTypes =
   | FetchProductsStartAction
   | FetchProductsSuccessAction
   | FetchProductsFailureAction
   | AddProductStartAction
   | AddProductSuccessAction
-  | AddProductFailureAction;
+  | AddProductFailureAction
+  | UpdateProductStartAction
+  | UpdateProductSuccessAction
+  | UpdateProductFailureAction;
 // Add other action types here
 
 export const fetchProductsStart = (): FetchProductsStartAction => ({
@@ -89,6 +107,26 @@ export const addProductFailure = (error: string): AddProductFailureAction => ({
   payload: error,
 });
 
+// Update Product Action Creators
+export const updateProductStart = (): UpdateProductStartAction => ({
+  type: UPDATE_PRODUCT_START,
+});
+
+export const updateProductSuccess = (
+  product: Product
+): UpdateProductSuccessAction => ({
+  type: UPDATE_PRODUCT_SUCCESS,
+  payload: product,
+});
+
+export const updateProductFailure = (
+  productId: string,
+  error: string
+): UpdateProductFailureAction => ({
+  type: UPDATE_PRODUCT_FAILURE,
+  payload: { productId, error },
+});
+
 // 4. Define Initial State
 const initialState: ProductsState = {
   items: [],
@@ -122,7 +160,22 @@ export const productsReducer = (
     case ADD_PRODUCT_FAILURE:
       return { ...state, isLoading: false, error: action.payload };
 
-    // Add cases for UPDATE, DELETE later
+    // Update cases
+    case UPDATE_PRODUCT_START:
+      return { ...state, isLoading: true, error: null };
+    case UPDATE_PRODUCT_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        items: state.items.map((item) =>
+          item.id === action.payload.id ? action.payload : item
+        ),
+        error: null,
+      };
+    case UPDATE_PRODUCT_FAILURE:
+      return { ...state, isLoading: false, error: action.payload.error };
+
+    // Add cases for DELETE later
     default:
       return state;
   }

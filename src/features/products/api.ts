@@ -80,3 +80,49 @@ export const addProduct = async (
 };
 
 // Add functions for updateProduct, deleteProduct later in Phase 3
+
+// Define the type for the data needed to update a product (can be partial)
+export type UpdateProductData = Partial<Omit<Product, "id">>;
+
+/**
+ * Updates an existing product via the mock API.
+ * @param productId - The ID of the product to update.
+ * @param productData - The partial data to update the product with.
+ * @returns A promise that resolves to the updated Product object.
+ * @throws An error if the network response is not ok.
+ */
+export const updateProduct = async (
+  productId: string,
+  productData: UpdateProductData
+): Promise<Product> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+      method: "PATCH", // Use PATCH for partial updates
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(productData),
+    });
+
+    if (!response.ok) {
+      let errorMsg = response.statusText;
+      try {
+        const errorBody = await response.json();
+        errorMsg = errorBody.message || errorMsg;
+      } catch (e) {
+        /* Ignore */
+      }
+      throw new Error(
+        `Failed to update product ${productId}: ${response.status} ${errorMsg}`
+      );
+    }
+
+    const updatedProduct: Product = await response.json();
+    return updatedProduct;
+  } catch (error) {
+    console.error(`Error updating product ${productId}:`, error);
+    throw error;
+  }
+};
+
+// Add function for deleteProduct later
