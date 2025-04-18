@@ -18,7 +18,6 @@
       "@/*": ["*"] // Example: Allows importing '@components/Button' instead of '../components/Button'
     },
     "outDir": "./dist", // Redirect output structure to the directory
-    "noEmit": true, // Do not emit outputs (handled by bundler like Webpack/ts-loader)
     "types": ["node", "jest"] // Explicitly include node and jest types
   },
   "include": ["src/**/*", "tests/**/*", "jest.setup.ts"], // Specifies files to include in compilation
