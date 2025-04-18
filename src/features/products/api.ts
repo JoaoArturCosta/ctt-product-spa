@@ -37,3 +37,46 @@ export const fetchProducts = async (): Promise<Product[]> => {
 };
 
 // Add functions for addProduct, updateProduct, deleteProduct later in Phase 3
+
+// Define the type for the data needed to create a product (omit id)
+export type NewProductData = Omit<Product, "id">;
+
+/**
+ * Adds a new product via the mock API.
+ * @param productData - The data for the new product (description, price, stock, categories).
+ * @returns A promise that resolves to the newly created Product object (including id).
+ * @throws An error if the network response is not ok.
+ */
+export const addProduct = async (
+  productData: NewProductData
+): Promise<Product> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/products`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(productData),
+    });
+
+    if (!response.ok) {
+      let errorMsg = response.statusText;
+      try {
+        const errorBody = await response.json();
+        errorMsg = errorBody.message || errorMsg;
+      } catch (e) {
+        /* Ignore */
+      }
+      throw new Error(`Failed to add product: ${response.status} ${errorMsg}`);
+    }
+
+    const newProduct: Product = await response.json();
+    // json-server automatically assigns an id
+    return newProduct;
+  } catch (error) {
+    console.error("Error adding product:", error);
+    throw error;
+  }
+};
+
+// Add functions for updateProduct, deleteProduct later in Phase 3

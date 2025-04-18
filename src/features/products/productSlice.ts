@@ -19,6 +19,9 @@ export interface ProductsState {
 export const FETCH_PRODUCTS_START = "products/fetchStart";
 export const FETCH_PRODUCTS_SUCCESS = "products/fetchSuccess";
 export const FETCH_PRODUCTS_FAILURE = "products/fetchFailure";
+export const ADD_PRODUCT_START = "products/addStart";
+export const ADD_PRODUCT_SUCCESS = "products/addSuccess";
+export const ADD_PRODUCT_FAILURE = "products/addFailure";
 // Add action types for CRUD operations later (ADD, UPDATE, DELETE)
 
 // 3. Define Action Creators
@@ -33,10 +36,22 @@ interface FetchProductsFailureAction
   payload: string;
 }
 
+// Add Product Actions
+interface AddProductStartAction extends Action<typeof ADD_PRODUCT_START> {}
+interface AddProductSuccessAction extends Action<typeof ADD_PRODUCT_SUCCESS> {
+  payload: Product; // Payload is the newly added product with its ID
+}
+interface AddProductFailureAction extends Action<typeof ADD_PRODUCT_FAILURE> {
+  payload: string;
+}
+
 export type ProductActionTypes =
   | FetchProductsStartAction
   | FetchProductsSuccessAction
-  | FetchProductsFailureAction;
+  | FetchProductsFailureAction
+  | AddProductStartAction
+  | AddProductSuccessAction
+  | AddProductFailureAction;
 // Add other action types here
 
 export const fetchProductsStart = (): FetchProductsStartAction => ({
@@ -57,6 +72,23 @@ export const fetchProductsFailure = (
   payload: error,
 });
 
+// Add Product Action Creators
+export const addProductStart = (): AddProductStartAction => ({
+  type: ADD_PRODUCT_START,
+});
+
+export const addProductSuccess = (
+  product: Product
+): AddProductSuccessAction => ({
+  type: ADD_PRODUCT_SUCCESS,
+  payload: product,
+});
+
+export const addProductFailure = (error: string): AddProductFailureAction => ({
+  type: ADD_PRODUCT_FAILURE,
+  payload: error,
+});
+
 // 4. Define Initial State
 const initialState: ProductsState = {
   items: [],
@@ -67,22 +99,31 @@ const initialState: ProductsState = {
 // 5. Define Reducer
 export const productsReducer = (
   state = initialState,
-  // Revert back to specific action types for this reducer
   action: ProductActionTypes
 ): ProductsState => {
   switch (action.type) {
     case FETCH_PRODUCTS_START:
       return { ...state, isLoading: true, error: null };
     case FETCH_PRODUCTS_SUCCESS:
-      // No need to cast now, action is already typed correctly
       return { ...state, isLoading: false, items: action.payload, error: null };
     case FETCH_PRODUCTS_FAILURE:
-      // No need to cast now
       return { ...state, isLoading: false, error: action.payload };
-    // Add cases for CRUD operations later
+
+    // Add cases
+    case ADD_PRODUCT_START:
+      return { ...state, isLoading: true, error: null };
+    case ADD_PRODUCT_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        items: [...state.items, action.payload],
+        error: null,
+      };
+    case ADD_PRODUCT_FAILURE:
+      return { ...state, isLoading: false, error: action.payload };
+
+    // Add cases for UPDATE, DELETE later
     default:
-      // Optional: Add exhaustive check for action types if needed
-      // const _exhaustiveCheck: never = action;
       return state;
   }
 };
