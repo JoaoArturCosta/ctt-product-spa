@@ -15,7 +15,7 @@ services:
       - mock_api # Ensure mock API starts before frontend attempts connection in some scenarios
 
   mock_api:
-    image: node:18-alpine # Use a node image to run json-server
+    image: node:20-alpine # Use updated node image
     working_dir: /app
     volumes:
       - ./mock-api:/app/mock-api # Mount mock-api directory
@@ -23,7 +23,7 @@ services:
     # If json-server is a dev dependency, adjust command: npx json-server ...
     command: >
       sh -c "npm install -g json-server && 
-             json-server --watch mock-api/db.json --host 0.0.0.0 --port 3001 --delay 500"
+             json-server --watch mock-api/db.json --host 0.0.0.0 --port 3001"
     ports:
       - "3001:3001" # Expose mock API port
 
