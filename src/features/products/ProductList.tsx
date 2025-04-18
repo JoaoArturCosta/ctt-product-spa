@@ -38,26 +38,49 @@ const ProductList: React.FC = () => {
   }, [dispatch]);
 
   if (isLoading) {
-    return <div>Loading products...</div>;
+    // Style loading message
+    return (
+      <div
+        style={{ padding: "20px", textAlign: "center", fontStyle: "italic" }}
+      >
+        Loading products...
+      </div>
+    );
   }
 
   if (error) {
-    // Display error message above results as requested
+    // Style error message
     return (
-      <div>
-        <p style={{ color: "red" }}>Error: {error}</p>
-        {/* Optionally still render part of the UI or a retry button */}
+      <div
+        style={{
+          padding: "20px",
+          color: "red",
+          border: "1px solid red",
+          borderRadius: "4px",
+          marginBottom: "20px",
+        }}
+      >
+        <strong>Error:</strong> {error}
       </div>
     );
   }
 
   if (products.length === 0) {
-    return <div>No products found.</div>;
+    // Style no products message
+    return (
+      <div
+        style={{ padding: "20px", textAlign: "center", fontStyle: "italic" }}
+      >
+        No products found. Add one using the form above!
+      </div>
+    );
   }
 
   return (
     <div>
-      <h2>Product List</h2>
+      <h2 style={{ borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
+        Product List
+      </h2>
       <ul>
         {products.map((product) => (
           // Render ProductItem component instead of inline details

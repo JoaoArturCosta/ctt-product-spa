@@ -4,10 +4,15 @@ import AddProductForm from "@/features/products/AddProductForm"; // Import AddPr
 
 const App: React.FC = () => {
   return (
-    <div style={{ padding: "20px" }}>
-      {" "}
-      {/* Add some basic padding */}
-      <h1>Product Management SPA</h1>
+    <div
+      style={{
+        maxWidth: "800px", // Limit max width
+        margin: "20px auto", // Center the container
+        padding: "20px",
+        fontFamily: "sans-serif", // Basic font
+      }}
+    >
+      <h1 style={{ textAlign: "center" }}>Product Management SPA</h1>
       <hr /> {/* Add a separator */}
       <AddProductForm /> {/* Render AddProductForm */}
       <hr /> {/* Add a separator */}

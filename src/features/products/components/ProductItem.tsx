@@ -117,13 +117,18 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
   return (
     <li
       style={{
-        marginBottom: "10px",
-        padding: "10px",
+        listStyle: "none", // Remove default list bullet
+        marginBottom: "15px",
+        padding: "15px",
         border: "1px solid #ccc",
+        borderRadius: "4px", // Add rounded corners
+        display: "flex", // Use flexbox for layout
+        flexDirection: "column", // Stack elements vertically
       }}
     >
       {isEditing ? (
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {/* Input fields stacked vertically */}
           <input
             type="text"
             name="description"
@@ -131,49 +136,77 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
             onChange={handleInputChange}
             placeholder="Description"
             required
+            style={{ padding: "8px", border: "1px solid #ddd" }}
           />
-          <input
-            type="number"
-            name="price"
-            step="0.01"
-            value={editData.price ?? ""}
-            onChange={handleInputChange}
-            placeholder="Price"
-            required
-          />
-          <input
-            type="number"
-            name="stock"
-            step="1"
-            value={editData.stock ?? ""}
-            onChange={handleInputChange}
-            placeholder="Stock"
-            required
-          />
+          <div style={{ display: "flex", gap: "10px" }}>
+            {/* Price and Stock side-by-side */}
+            <input
+              type="number"
+              name="price"
+              step="0.01"
+              value={editData.price ?? ""}
+              onChange={handleInputChange}
+              placeholder="Price"
+              required
+              style={{ padding: "8px", border: "1px solid #ddd", flex: 1 }}
+            />
+            <input
+              type="number"
+              name="stock"
+              step="1"
+              value={editData.stock ?? ""}
+              onChange={handleInputChange}
+              placeholder="Stock"
+              required
+              style={{ padding: "8px", border: "1px solid #ddd", flex: 1 }}
+            />
+          </div>
           {/* Add input for categories if needed */}
-          <button onClick={handleSave} style={{ marginLeft: "5px" }}>
-            Save
-          </button>
-          <button onClick={handleEditToggle} style={{ marginLeft: "5px" }}>
-            Cancel
-          </button>
+          <div style={{ marginTop: "10px", display: "flex", gap: "5px" }}>
+            {/* Buttons */}
+            <button onClick={handleSave} style={{ padding: "8px 12px" }}>
+              Save
+            </button>
+            <button onClick={handleEditToggle} style={{ padding: "8px 12px" }}>
+              Cancel
+            </button>
+          </div>
         </div>
       ) : (
-        <div>
-          <span>{product.description}</span>
-          <span> - Price: ${product.price.toFixed(2)}</span>
-          <span> - Stock: {product.stock}</span>
-          {/* Display categories if needed */}
-          {/* <span> - Categories: {product.categories.join(', ')}</span> */}
-          <button onClick={handleEditToggle} style={{ marginLeft: "10px" }}>
-            Edit
-          </button>
-          <button
-            onClick={handleDelete}
-            style={{ marginLeft: "5px", color: "red" }}
-          >
-            Delete
-          </button>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between", // Space out details and buttons
+            alignItems: "center", // Vertically align items
+          }}
+        >
+          {/* Product details */}
+          <div style={{ flexGrow: 1, marginRight: "15px" }}>
+            <strong style={{ display: "block", marginBottom: "5px" }}>
+              {product.description}
+            </strong>
+            <span>Price: ${product.price.toFixed(2)}</span>
+            <span style={{ marginLeft: "15px" }}>Stock: {product.stock}</span>
+            {/* Display categories if needed */}
+            {/* <span style={{ marginLeft: '15px' }}> - Categories: {product.categories.join(', ')}</span> */}
+          </div>
+          {/* Action Buttons */}
+          <div style={{ display: "flex", gap: "5px" }}>
+            <button onClick={handleEditToggle} style={{ padding: "6px 10px" }}>
+              Edit
+            </button>
+            <button
+              onClick={handleDelete}
+              style={{
+                marginLeft: "5px",
+                color: "red",
+                borderColor: "red", // Style delete button
+                padding: "6px 10px",
+              }}
+            >
+              Delete
+            </button>
+          </div>
         </div>
       )}
     </li>
