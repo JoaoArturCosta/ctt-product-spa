@@ -55,6 +55,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: "./public/index.html", // Template HTML file
       favicon: "./public/favicon.ico", // Optional: Add favicon path if you have one
+      inject: "body", // Explicitly inject scripts at the end of the body
     }),
   ],
   devServer: {
