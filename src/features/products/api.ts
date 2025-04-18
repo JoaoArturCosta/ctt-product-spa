@@ -126,3 +126,40 @@ export const updateProduct = async (
 };
 
 // Add function for deleteProduct later
+
+/**
+ * Deletes a product via the mock API.
+ * @param productId - The ID of the product to delete.
+ * @returns A promise that resolves when the deletion is successful.
+ * @throws An error if the network response is not ok.
+ */
+export const deleteProduct = async (productId: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      let errorMsg = response.statusText;
+      try {
+        // DELETE might not have a JSON body, check content type or just rely on status text
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          const errorBody = await response.json();
+          errorMsg = errorBody.message || errorMsg;
+        }
+      } catch (e) {
+        /* Ignore */
+      }
+      throw new Error(
+        `Failed to delete product ${productId}: ${response.status} ${errorMsg}`
+      );
+    }
+
+    // No content expected on successful DELETE typically
+    return;
+  } catch (error) {
+    console.error(`Error deleting product ${productId}:`, error);
+    throw error;
+  }
+};

@@ -25,7 +25,9 @@ export const ADD_PRODUCT_FAILURE = "products/addFailure";
 export const UPDATE_PRODUCT_START = "products/updateStart";
 export const UPDATE_PRODUCT_SUCCESS = "products/updateSuccess";
 export const UPDATE_PRODUCT_FAILURE = "products/updateFailure";
-// Add action types for DELETE later
+export const DELETE_PRODUCT_START = "products/deleteStart";
+export const DELETE_PRODUCT_SUCCESS = "products/deleteSuccess";
+export const DELETE_PRODUCT_FAILURE = "products/deleteFailure";
 
 // 3. Define Action Creators
 interface FetchProductsStartAction
@@ -60,6 +62,20 @@ interface UpdateProductFailureAction
   payload: { productId: string; error: string }; // Include ID for context
 }
 
+// Delete Product Actions
+interface DeleteProductStartAction extends Action<typeof DELETE_PRODUCT_START> {
+  // Optionally include productId in meta if needed for optimistic UI
+  // meta: { productId: string };
+}
+interface DeleteProductSuccessAction
+  extends Action<typeof DELETE_PRODUCT_SUCCESS> {
+  payload: { productId: string }; // Send ID of deleted product
+}
+interface DeleteProductFailureAction
+  extends Action<typeof DELETE_PRODUCT_FAILURE> {
+  payload: { productId: string; error: string };
+}
+
 export type ProductActionTypes =
   | FetchProductsStartAction
   | FetchProductsSuccessAction
@@ -69,7 +85,10 @@ export type ProductActionTypes =
   | AddProductFailureAction
   | UpdateProductStartAction
   | UpdateProductSuccessAction
-  | UpdateProductFailureAction;
+  | UpdateProductFailureAction
+  | DeleteProductStartAction
+  | DeleteProductSuccessAction
+  | DeleteProductFailureAction;
 // Add other action types here
 
 export const fetchProductsStart = (): FetchProductsStartAction => ({
@@ -127,6 +146,28 @@ export const updateProductFailure = (
   payload: { productId, error },
 });
 
+// Delete Product Action Creators
+export const deleteProductStart =
+  (/* productId?: string */): DeleteProductStartAction => ({
+    type: DELETE_PRODUCT_START,
+    // meta: { productId }, // If using meta for optimistic UI
+  });
+
+export const deleteProductSuccess = (
+  productId: string
+): DeleteProductSuccessAction => ({
+  type: DELETE_PRODUCT_SUCCESS,
+  payload: { productId },
+});
+
+export const deleteProductFailure = (
+  productId: string,
+  error: string
+): DeleteProductFailureAction => ({
+  type: DELETE_PRODUCT_FAILURE,
+  payload: { productId, error },
+});
+
 // 4. Define Initial State
 const initialState: ProductsState = {
   items: [],
@@ -175,7 +216,26 @@ export const productsReducer = (
     case UPDATE_PRODUCT_FAILURE:
       return { ...state, isLoading: false, error: action.payload.error };
 
-    // Add cases for DELETE later
+    // Delete cases
+    case DELETE_PRODUCT_START:
+      // Optionally indicate loading specific to an item, or just global loading
+      // Can also optionally remove item optimistically here using action.meta.productId
+      return { ...state, isLoading: true, error: null };
+    case DELETE_PRODUCT_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        // Filter out the deleted item
+        items: state.items.filter(
+          (item) => item.id !== action.payload.productId
+        ),
+        error: null,
+      };
+    case DELETE_PRODUCT_FAILURE:
+      // Store error, potentially relating it to the specific product ID if needed
+      // If optimistic delete was done in START, need to add item back here
+      return { ...state, isLoading: false, error: action.payload.error };
+
     default:
       return state;
   }

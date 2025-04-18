@@ -9,6 +9,9 @@ import {
   updateProductStart,
   updateProductSuccess,
   updateProductFailure,
+  deleteProductStart,
+  deleteProductSuccess,
+  deleteProductFailure,
   ProductsState,
   Product,
 } from "./productSlice";
@@ -193,6 +196,66 @@ describe("productsReducer", () => {
       productsReducer(
         previousState,
         updateProductFailure(productIdToFail, errorMsg)
+      )
+    ).toEqual(expectedState);
+  });
+
+  it("should handle deleteProductStart", () => {
+    const previousState: ProductsState = {
+      ...initialState,
+      items: mockProducts,
+      error: "Previous error",
+    };
+    const expectedState: ProductsState = {
+      ...initialState,
+      items: mockProducts,
+      isLoading: true,
+      error: null,
+    };
+    // Note: items might be handled optimistically here in a real app
+    expect(productsReducer(previousState, deleteProductStart())).toEqual(
+      expectedState
+    );
+  });
+
+  it("should handle deleteProductSuccess", () => {
+    const productIdToDelete = mockProducts[0].id;
+    // State contains both original mock products
+    const previousState: ProductsState = {
+      ...initialState,
+      items: mockProducts,
+      isLoading: true,
+    };
+    const expectedState: ProductsState = {
+      ...initialState,
+      isLoading: false,
+      // Only the second product should remain
+      items: [mockProducts[1]],
+    };
+    expect(
+      productsReducer(previousState, deleteProductSuccess(productIdToDelete))
+    ).toEqual(expectedState);
+  });
+
+  it("should handle deleteProductFailure", () => {
+    const previousState: ProductsState = {
+      ...initialState,
+      items: mockProducts,
+      isLoading: true,
+    };
+    const errorMsg = "Failed to delete";
+    const productIdToFail = mockProducts[0].id;
+    const expectedState: ProductsState = {
+      ...initialState,
+      items: mockProducts,
+      isLoading: false,
+      error: errorMsg,
+    };
+    // Note: If using optimistic delete, the item would need to be added back here.
+    expect(
+      productsReducer(
+        previousState,
+        deleteProductFailure(productIdToFail, errorMsg)
       )
     ).toEqual(expectedState);
   });

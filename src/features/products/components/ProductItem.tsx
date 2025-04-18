@@ -5,8 +5,11 @@ import {
   updateProductStart,
   updateProductSuccess,
   updateProductFailure,
+  deleteProductStart,
+  deleteProductSuccess,
+  deleteProductFailure,
 } from "../productSlice";
-import { updateProduct, UpdateProductData } from "../api";
+import { updateProduct, UpdateProductData, deleteProduct } from "../api";
 
 interface ProductItemProps {
   product: Product;
@@ -92,6 +95,25 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
     }
   };
 
+  const handleDelete = async () => {
+    if (
+      !window.confirm(`Are you sure you want to delete ${product.description}?`)
+    ) {
+      return;
+    }
+
+    dispatch(deleteProductStart());
+    try {
+      await deleteProduct(product.id);
+      dispatch(deleteProductSuccess(product.id));
+      // No need to update local state as the item will be removed from the list
+    } catch (err: any) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      dispatch(deleteProductFailure(product.id, errorMessage));
+      // Global error is handled by ProductList
+    }
+  };
+
   return (
     <li
       style={{
@@ -146,7 +168,12 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
           <button onClick={handleEditToggle} style={{ marginLeft: "10px" }}>
             Edit
           </button>
-          {/* Add Delete button here later */}
+          <button
+            onClick={handleDelete}
+            style={{ marginLeft: "5px", color: "red" }}
+          >
+            Delete
+          </button>
         </div>
       )}
     </li>
