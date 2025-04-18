@@ -24,8 +24,25 @@ module.exports = {
         exclude: /node_modules/,
       },
       // Add loaders for CSS, images, etc. here if needed later
+      {
+        test: /\.module\.css$/i, // Target .module.css files
+        use: [
+          "style-loader", // Injects styles into DOM
+          {
+            loader: "css-loader", // Translates CSS into CommonJS
+            options: {
+              modules: {
+                localIdentName: "[name]__[local]--[hash:base64:5]", // Generate unique class names
+              },
+              importLoaders: 1,
+            },
+          },
+        ],
+      },
+      // Optional: Add rule for global CSS files (not modules)
       // {
       //   test: /\.css$/i,
+      //   exclude: /\.module\.css$/i, // Exclude module files
       //   use: ['style-loader', 'css-loader'],
       // },
       // {

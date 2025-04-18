@@ -10,6 +10,7 @@ import {
   deleteProductFailure,
 } from "../productSlice";
 import { updateProduct, UpdateProductData, deleteProduct } from "../api";
+import styles from "./ProductItem.module.css"; // Import CSS Module
 
 interface ProductItemProps {
   product: Product;
@@ -115,20 +116,9 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
   };
 
   return (
-    <li
-      style={{
-        listStyle: "none", // Remove default list bullet
-        marginBottom: "15px",
-        padding: "15px",
-        border: "1px solid #ccc",
-        borderRadius: "4px", // Add rounded corners
-        display: "flex", // Use flexbox for layout
-        flexDirection: "column", // Stack elements vertically
-      }}
-    >
+    <li className={styles.listItem}>
       {isEditing ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {/* Input fields stacked vertically */}
+        <div className={styles.editModeContainer}>
           <input
             type="text"
             name="description"
@@ -136,10 +126,11 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
             onChange={handleInputChange}
             placeholder="Description"
             required
-            style={{ padding: "8px", border: "1px solid #ddd" }}
+            className={styles.editInput} // Apply base input style
           />
-          <div style={{ display: "flex", gap: "10px" }}>
-            {/* Price and Stock side-by-side */}
+          <div className={styles.editRow}>
+            {" "}
+            {/* Row for price/stock */}
             <input
               type="number"
               name="price"
@@ -148,7 +139,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
               onChange={handleInputChange}
               placeholder="Price"
               required
-              style={{ padding: "8px", border: "1px solid #ddd", flex: 1 }}
+              className={`${styles.editInput} ${styles.editInputFlex}`} // Combine classes
             />
             <input
               type="number"
@@ -158,51 +149,44 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
               onChange={handleInputChange}
               placeholder="Stock"
               required
-              style={{ padding: "8px", border: "1px solid #ddd", flex: 1 }}
+              className={`${styles.editInput} ${styles.editInputFlex}`} // Combine classes
             />
           </div>
-          {/* Add input for categories if needed */}
-          <div style={{ marginTop: "10px", display: "flex", gap: "5px" }}>
-            {/* Buttons */}
-            <button onClick={handleSave} style={{ padding: "8px 12px" }}>
+          <div className={styles.buttonRow}>
+            {" "}
+            {/* Buttons row */}
+            <button
+              onClick={handleSave}
+              className={`${styles.button} ${styles.saveButton}`}
+            >
               Save
             </button>
-            <button onClick={handleEditToggle} style={{ padding: "8px 12px" }}>
+            <button
+              onClick={handleEditToggle}
+              className={`${styles.button} ${styles.cancelButton}`}
+            >
               Cancel
             </button>
           </div>
         </div>
       ) : (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between", // Space out details and buttons
-            alignItems: "center", // Vertically align items
-          }}
-        >
-          {/* Product details */}
-          <div style={{ flexGrow: 1, marginRight: "15px" }}>
-            <strong style={{ display: "block", marginBottom: "5px" }}>
+        <div className={styles.viewModeContainer}>
+          <div className={styles.details}>
+            <strong className={styles.description}>
               {product.description}
             </strong>
             <span>Price: ${product.price.toFixed(2)}</span>
-            <span style={{ marginLeft: "15px" }}>Stock: {product.stock}</span>
+            <span className={styles.stock}>Stock: {product.stock}</span>
             {/* Display categories if needed */}
             {/* <span style={{ marginLeft: '15px' }}> - Categories: {product.categories.join(', ')}</span> */}
           </div>
-          {/* Action Buttons */}
-          <div style={{ display: "flex", gap: "5px" }}>
-            <button onClick={handleEditToggle} style={{ padding: "6px 10px" }}>
+          <div className={styles.buttonRow}>
+            <button onClick={handleEditToggle} className={styles.button}>
               Edit
             </button>
             <button
               onClick={handleDelete}
-              style={{
-                marginLeft: "5px",
-                color: "red",
-                borderColor: "red", // Style delete button
-                padding: "6px 10px",
-              }}
+              className={`${styles.button} ${styles.deleteButton}`}
             >
               Delete
             </button>

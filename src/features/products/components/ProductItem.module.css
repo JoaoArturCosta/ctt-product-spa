@@ -1,0 +1,91 @@
+/* ProductItem.module.css */
+
+.listItem {
+  list-style: none;
+  margin-bottom: 15px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* View Mode */
+.viewModeContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.details {
+  flex-grow: 1;
+  margin-right: 15px;
+}
+
+.description {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.price,
+.stock {
+  margin-left: 15px;
+}
+
+/* Edit Mode */
+.editModeContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.editRow {
+  display: flex;
+  gap: 10px;
+}
+
+.editInput {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+.editInputFlex {
+  flex: 1;
+}
+
+/* Buttons */
+.buttonRow {
+  margin-top: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.button {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #e0e0e0;
+}
+
+.saveButton,
+.cancelButton {
+  padding: 8px 12px;
+}
+
+.deleteButton {
+  color: red;
+  border-color: red;
+}
+
+.deleteButton:hover {
+  background-color: #ffe0e0;
+}

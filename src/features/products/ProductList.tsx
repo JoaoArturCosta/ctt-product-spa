@@ -10,6 +10,7 @@ import {
 import { fetchProducts } from "./api";
 // Import ProductItem component
 import ProductItem from "./components/ProductItem";
+import styles from "./ProductList.module.css"; // Import CSS Module
 
 const ProductList: React.FC = () => {
   const dispatch = useAppDispatch(); // Use typed dispatch
@@ -39,27 +40,13 @@ const ProductList: React.FC = () => {
 
   if (isLoading) {
     // Style loading message
-    return (
-      <div
-        style={{ padding: "20px", textAlign: "center", fontStyle: "italic" }}
-      >
-        Loading products...
-      </div>
-    );
+    return <div className={styles.loadingMessage}>Loading products...</div>;
   }
 
   if (error) {
     // Style error message
     return (
-      <div
-        style={{
-          padding: "20px",
-          color: "red",
-          border: "1px solid red",
-          borderRadius: "4px",
-          marginBottom: "20px",
-        }}
-      >
+      <div className={styles.errorMessage}>
         <strong>Error:</strong> {error}
       </div>
     );
@@ -68,9 +55,7 @@ const ProductList: React.FC = () => {
   if (products.length === 0) {
     // Style no products message
     return (
-      <div
-        style={{ padding: "20px", textAlign: "center", fontStyle: "italic" }}
-      >
+      <div className={styles.noProductsMessage}>
         No products found. Add one using the form above!
       </div>
     );
@@ -78,10 +63,8 @@ const ProductList: React.FC = () => {
 
   return (
     <div>
-      <h2 style={{ borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
-        Product List
-      </h2>
-      <ul>
+      <h2 className={styles.listTitle}>Product List</h2>
+      <ul className={styles.productList}>
         {products.map((product) => (
           // Render ProductItem component instead of inline details
           <ProductItem key={product.id} product={product} />

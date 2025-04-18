@@ -6,6 +6,7 @@ import {
   addProductFailure,
 } from "../productSlice";
 import { addProduct, NewProductData } from "../api";
+import styles from "./AddProductForm.module.css"; // Import CSS Module
 
 const AddProductForm: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -72,20 +73,11 @@ const AddProductForm: React.FC = () => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        marginBottom: "20px",
-        padding: "15px",
-        border: "1px solid #eee",
-      }}
-    >
-      <h3>Add New Product</h3>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <div style={{ marginBottom: "10px" }}>
-        <label htmlFor="description" style={{ marginRight: "5px" }}>
-          Description:
-        </label>
+    <form onSubmit={handleSubmit} className={styles.formContainer}>
+      <h3 className={styles.formTitle}>Add New Product</h3>
+      {error && <p className={styles.errorMessage}>{error}</p>}
+      <div className={styles.inputGroup}>
+        <label htmlFor="description">Description:</label>
         <input
           type="text"
           id="description"
@@ -94,12 +86,11 @@ const AddProductForm: React.FC = () => {
           onChange={handleChange}
           required
           disabled={isSubmitting}
+          className={styles.input}
         />
       </div>
-      <div style={{ marginBottom: "10px" }}>
-        <label htmlFor="price" style={{ marginRight: "5px" }}>
-          Price:
-        </label>
+      <div className={styles.inputGroup}>
+        <label htmlFor="price">Price:</label>
         <input
           type="number"
           id="price"
@@ -110,12 +101,11 @@ const AddProductForm: React.FC = () => {
           onChange={handleChange}
           required
           disabled={isSubmitting}
+          className={styles.input}
         />
       </div>
-      <div style={{ marginBottom: "10px" }}>
-        <label htmlFor="stock" style={{ marginRight: "5px" }}>
-          Stock:
-        </label>
+      <div className={styles.inputGroup}>
+        <label htmlFor="stock">Stock:</label>
         <input
           type="number"
           id="stock"
@@ -126,9 +116,14 @@ const AddProductForm: React.FC = () => {
           onChange={handleChange}
           required
           disabled={isSubmitting}
+          className={styles.input}
         />
       </div>
-      <button type="submit" disabled={isSubmitting}>
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={styles.submitButton}
+      >
         {isSubmitting ? "Adding..." : "Add Product"}
       </button>
     </form>
