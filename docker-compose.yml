@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80" # Map host port 8080 to container port 80 (Nginx default)
+    environment:
+      # Pass environment variables if needed, e.g., API base URL for production
+      # API_URL: http://mock-api:3001
+      NODE_ENV: production
+    depends_on:
+      - mock_api # Ensure mock API starts before frontend attempts connection in some scenarios
+
+  mock_api:
+    image: node:18-alpine # Use a node image to run json-server
+    working_dir: /app
+    volumes:
+      - ./mock-api:/app/mock-api # Mount mock-api directory
+    # Command to install json-server globally (if not a dev dependency) and run it
+    # If json-server is a dev dependency, adjust command: npx json-server ...
+    command: >
+      sh -c "npm install -g json-server && 
+             json-server --watch mock-api/db.json --host 0.0.0.0 --port 3001 --delay 500"
+    ports:
+      - "3001:3001" # Expose mock API port
+
+# Define networks if needed for specific communication patterns
+# networks:
+#   app-network:
+#     driver: bridge

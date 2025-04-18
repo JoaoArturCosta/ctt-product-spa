@@ -1,0 +1,30 @@
+{
+  "products": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+      "stock": 10,
+      "description": "High Quality Widget",
+      "categories": ["cat1", "cat2"],
+      "price": 19.99
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-2345-67890abcdef0",
+      "stock": 5,
+      "description": "Standard Gizmo",
+      "categories": ["cat2"],
+      "price": 9.5
+    },
+    {
+      "id": "c3d4e5f6-a7b8-9012-3456-7890abcdef01",
+      "stock": 25,
+      "description": "Luxury Thingamajig",
+      "categories": ["cat1", "cat3"],
+      "price": 120.0
+    }
+  ],
+  "categories": [
+    { "id": "cat1", "name": "Electronics" },
+    { "id": "cat2", "name": "Home Goods" },
+    { "id": "cat3", "name": "Luxury" }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "ctt_exercise",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "jest",
+    "start": "webpack serve --config webpack.config.js --env development",
+    "build": "webpack --config webpack.config.js --mode production",
+    "mock:api": "json-server --watch mock-api/db.json --port 3001 --delay 500"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-redux": "^9.2.0",
+    "redux": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2"
+  }
+}

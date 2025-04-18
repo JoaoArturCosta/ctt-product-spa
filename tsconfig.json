@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // Specify ECMAScript target version
+    "module": "ESNext", // Specify module code generation
+    "jsx": "react-jsx", // Support JSX in .tsx files
+    "lib": ["DOM", "DOM.Iterable", "ESNext"], // List of library files to be included in the compilation
+    "moduleResolution": "node", // Resolve modules using Node.js style
+    "resolveJsonModule": true, // Include modules imported with .json extension
+    "isolatedModules": true, // Transpile each file as a separate module
+    "allowSyntheticDefaultImports": true, // Allow default imports from modules with no default export
+    "esModuleInterop": true, // Enables emit interoperability between CommonJS and ES Modules
+    "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references to the same file.
+    "strict": true, // Enable all strict type-checking options
+    "skipLibCheck": true, // Skip type checking of declaration files
+    "baseUrl": "./src", // Base directory to resolve non-absolute module names
+    "paths": {
+      // Series of entries which re-map imports to lookup locations
+      "@/*": ["*"] // Example: Allows importing '@components/Button' instead of '../components/Button'
+    },
+    "outDir": "./dist", // Redirect output structure to the directory
+    "noEmit": true // Do not emit outputs (handled by bundler like Webpack/ts-loader)
+  },
+  "include": ["src/**/*", "tests/**/*"], // Specifies files to include in compilation
+  "exclude": ["node_modules", "dist", "build"] // Specifies files to exclude from compilation
+}
