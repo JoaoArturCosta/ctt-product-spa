@@ -76,13 +76,15 @@ describe("AddProductForm", () => {
     const submitButton = screen.getByRole("button", { name: /add product/i });
 
     // Submit without filling description
-    fireEvent.click(submitButton);
+    const form = screen.getByTestId("add-product-form");
+    fireEvent.submit(form);
 
-    expect(
-      await screen.findByText(
-        /Description must be filled, Price and Stock must be valid non-negative numbers./i
-      )
-    ).toBeInTheDocument();
+    // Wait for the error message to appear
+    await waitFor(() => {
+      expect(
+        screen.getByText("Description must be filled.")
+      ).toBeInTheDocument();
+    });
     expect(store.dispatch).not.toHaveBeenCalled();
     expect(mockAddProduct).not.toHaveBeenCalled();
   });

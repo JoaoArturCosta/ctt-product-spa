@@ -68,7 +68,11 @@ const AddProductForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.formContainer}>
+    <form
+      onSubmit={handleSubmit}
+      className={styles.formContainer}
+      data-testid="add-product-form"
+    >
       <h3 className={styles.formTitle}>Add New Product</h3>
       {error && <p className={styles.errorMessage}>{error}</p>}
       <InputField

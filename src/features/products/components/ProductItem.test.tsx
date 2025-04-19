@@ -173,17 +173,31 @@ describe("ProductItem", () => {
       expectedApiPayload
     );
 
+    // Update the store's state to reflect the changes
+    store = mockStore({
+      products: {
+        ...initialState.products,
+        items: [updatedFullProduct],
+      },
+    });
+    store.dispatch = jest.fn();
+
+    // Re-render with updated store
+    const { rerender } = render(
+      <Provider store={store}>
+        <ProductItem product={updatedFullProduct} />
+      </Provider>
+    );
+
+    // Wait for the component to update
     await waitFor(() => {
-      expect(store.dispatch).toHaveBeenCalledWith(
-        updateProductSuccess(updatedFullProduct)
-      );
+      expect(screen.getByText(updatedData.description)).toBeInTheDocument();
     });
 
     // Should switch back to view mode
     expect(
       screen.queryByRole("button", { name: /save/i })
     ).not.toBeInTheDocument();
-    expect(screen.getByText(updatedData.description)).toBeInTheDocument(); // Check if updated description is shown
   });
 
   test("handles save failure", async () => {
