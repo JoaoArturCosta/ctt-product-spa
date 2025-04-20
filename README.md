@@ -6,14 +6,11 @@ The application allows users to view, add, edit, and delete products fetched fro
 
 ## Tech Stack
 
-- React 19
-- TypeScript
-- Redux (vanilla)
-- React-Redux
-- Webpack
-- Jest & React Testing Library
-- Docker & Docker Compose
-- JSON Server (for mock API)
+- **Frontend:** React 19, TypeScript, CSS Modules
+- **State Management:** Redux (core), React-Redux
+- **Build & Development:** Webpack, Webpack Dev Server, ts-loader, Docker, Docker Compose
+- **Testing:** Jest, React Testing Library, ts-jest, redux-mock-store
+- **Mock API:** JSON Server
 
 ## Running Locally with Docker
 
@@ -27,7 +24,7 @@ The application allows users to view, add, edit, and delete products fetched fro
 
     ```bash
     git clone <your-repo-url> # Replace with your repository URL
-    cd ctt-product-spa
+    cd <repository-directory-name> # Replace with the actual directory name
     ```
 
 2.  **Build and run the containers:**
@@ -36,14 +33,10 @@ The application allows users to view, add, edit, and delete products fetched fro
     docker compose up --build -d
     ```
 
-    This command will:
-
-    - Build the Docker image for the frontend application (including installing dependencies and building static assets).
-    - Build the Docker image for the mock API server.
-    - Start both services in detached mode (`-d`).
+    This command will build the Docker images and start the frontend application and the mock API server.
 
 3.  **Access the application:**
-    Open your web browser and navigate to `http://localhost:8080` (or the port mapped in `docker-compose.yml` if different).
+    Open your web browser and navigate to `http://localhost:3000`.
 
 4.  **Access the mock API (optional):**
     The mock API data can be viewed directly at `http://localhost:3001/products`.
@@ -59,31 +52,31 @@ While Docker is the recommended way to run the full setup, you can also run part
 
 - **Install Dependencies:** `npm install`
 - **Run Mock API:** `npm run mock:api` (Serves on `http://localhost:3001`)
-- **Run Frontend Dev Server:** `npm start` (Serves on `http://localhost:8080`)
+- **Run Frontend Dev Server:** `npm run dev` (Serves on `http://localhost:3000`)
 - **Run Tests:** `npm test`
 - **Build Production Assets:** `npm run build`
 
-## Assumptions Made
+## Project Details & Assumptions
 
-- **Mock API Behavior:** Assumed `json-server` provides a standard RESTful interface and handles ID generation for POST requests.
-- **API Latency/Errors:** Mock API delays and potential errors are simulated via `json-server` configuration, but complex error scenarios are not deeply handled in the UI beyond displaying a generic message.
-- **Styling:** Kept minimal using inline styles as requested.
-- **State Management:** Focused on vanilla Redux without middleware like `redux-thunk` or `redux-saga` for async operations; async logic is handled within components (`useEffect`) or action thunks dispatched manually (though not explicitly used here beyond basic action dispatching).
-- **Categories:** The `categories` field is part of the data model but not fully implemented in the UI (not editable or displayable in the list/form).
-- **Testing:** Focused on unit tests for Redux slice logic and component interactions. End-to-end tests were not implemented.
-- **Environment Variables:** API base URL is hardcoded; in production, this would come from environment variables.
+- **Mock API Behavior:** Uses `json-server` for a standard RESTful mock interface. Assumes default behavior for ID generation on POST.
+- **API Interaction:** Basic API client in `src/lib/api-client.ts` handles requests. Error handling in the UI is basic, mainly relying on the top-level `ErrorBoundary`.
+- **Styling:** Uses CSS Modules for component-scoped styling. Overall styling is functional rather than heavily designed.
+- **State Management:** Uses core Redux and React-Redux for state management. Async operations (API calls) are initiated directly from components (`ProductItem`, `AddProductForm`), and state updates (loading, success, failure) are handled within the `productsReducer`. No async middleware (like thunk/saga) is used. State includes caching logic for the product list fetch.
+- **Categories:** The `categories` data field exists but is not implemented in the form or list UI.
+- **Testing:** Includes unit tests for the Redux slice and component tests using Jest/React Testing Library/`redux-mock-store`. No end-to-end tests are included.
+- **Configuration:** The mock API URL is configured via `docker-compose.yml` (`MOCK_API_URL`) and proxied by the Webpack Dev Server.
 
-## Potential Improvements for Production
+## Potential Improvements
 
-- **Styling:** Implement a robust styling solution (CSS Modules, Styled Components, Tailwind CSS) for better maintainability, theming, and responsive design.
-- **UI/UX:** Enhance user experience with better loading indicators (e.g., skeleton screens, per-item loading states), more informative error messages, user feedback on actions (e.g., toast notifications), form validation libraries, and potentially pagination for the product list.
-- **State Management:** Introduce async middleware (`redux-thunk` or `redux-saga`) for cleaner handling of side effects and API calls. Consider `Redux Toolkit` for boilerplate reduction (though explicitly disallowed for this exercise).
-- **API Interaction:** Implement more sophisticated error handling, request cancellation, and potentially data normalization (e.g., using `normalizr` if state shape became complex).
-- **Forms:** Use a dedicated form library (e.g., React Hook Form, Formik) for more complex validation and state management.
-- **Testing:** Add end-to-end tests (e.g., using Cypress or Playwright) and increase unit/integration test coverage.
-- **CI/CD:** Expand the basic CI pipeline with steps for linting, code coverage reporting, vulnerability scanning, and deployment stages.
-- **Configuration:** Manage API URLs and other configurations using environment variables.
-- **Code Splitting:** Implement route-based or component-based code splitting via Webpack to improve initial load times for larger applications.
-- **Accessibility:** Perform an accessibility audit and implement necessary improvements (semantic HTML, ARIA attributes, keyboard navigation).
-- **Categories Feature:** Fully implement UI for viewing and potentially managing product categories.
-- **Optimistic Updates:** Implement optimistic UI updates for operations like Add/Update/Delete to make the application feel faster.
+- **Styling:** While CSS Modules are used, explore more advanced styling solutions (e.g., utility classes, design system integration) for better consistency, theming, and responsive design.
+- **UI/UX:** Enhance user experience with per-item loading/error states during updates/deletes, toast notifications for action feedback, and pagination for the product list. Improve form validation feedback.
+- **State Management:** Introduce async middleware (`redux-thunk` or `redux-saga`) for cleaner side effect handling. Consider `Redux Toolkit` for reducing boilerplate (if allowed in a real-world scenario). Refine caching strategy if needed.
+- **API Interaction:** Implement more sophisticated API error handling (e.g., specific retry logic based on error codes), request cancellation on component unmount.
+- **Forms:** Use a dedicated form library (e.g., React Hook Form, Formik) for more robust validation and state management, especially if forms become more complex.
+- **Testing:** Add end-to-end tests (e.g., using Cypress or Playwright) and potentially integration tests for feature flows. Increase unit test coverage where valuable.
+- **CI/CD:** Expand the CI pipeline (`.github/workflows/ci.yml`) with linting, code coverage checks, vulnerability scanning, and potentially automated deployment stages.
+- **Code Splitting:** Implement route-based or component-based code splitting via Webpack if the application grows significantly, to improve initial load times.
+- **Accessibility (a11y):** Conduct a thorough accessibility audit and implement necessary improvements (semantic HTML, ARIA attributes, keyboard navigation testing).
+- **Categories Feature:** Fully implement UI for viewing and managing product categories.
+- **Optimistic Updates:** Implement optimistic UI updates for Add/Update/Delete operations to improve perceived performance.
+- **Error Handling:** Enhance the `ErrorBoundary` or add more granular error boundaries. Log errors to a dedicated monitoring service.
