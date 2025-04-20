@@ -1,0 +1,37 @@
+.errorBoundary {
+  border: 1px solid #d9534f; /* Red border */
+  background-color: #f2dede; /* Light red background */
+  color: #a94442; /* Dark red text */
+  padding: 20px;
+  margin: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.errorMessage {
+  background-color: #e9c6c6; /* Slightly darker red for pre */
+  border: 1px solid #d9b3b3;
+  padding: 10px;
+  margin-top: 15px;
+  border-radius: 4px;
+  color: #843534; /* Even darker red text */
+  text-align: left;
+  white-space: pre-wrap; /* Wrap long error messages */
+  word-break: break-all;
+}
+
+.reloadButton {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1em;
+  color: #fff;
+  background-color: #d9534f;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.reloadButton:hover {
+  background-color: #c9302c; /* Darker red on hover */
+}
