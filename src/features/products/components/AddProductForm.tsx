@@ -5,7 +5,8 @@ import {
   addProductSuccess,
   addProductFailure,
 } from "../productSlice";
-import { addProduct, NewProductData } from "../api";
+import { addProduct } from "../api";
+import { NewProductData, ErrorState } from "../types";
 import { validateProductData, ProductFormData } from "../validation";
 import InputField from "@/components/InputField/InputField";
 import styles from "./AddProductForm.module.css";
@@ -45,22 +46,31 @@ const AddProductForm: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    dispatch(addProductStart());
+
+    // Construct the payload before dispatching
+    const newProductData: NewProductData = {
+      description: formData.description!, // Non-null assertion based on validation
+      price: formData.price!, // Non-null assertion based on validation
+      stock: formData.stock!, // Non-null assertion based on validation
+      categories: [],
+    };
+
+    dispatch(addProductStart(newProductData));
 
     try {
-      const newProductData: NewProductData = {
-        description: formData.description!,
-        price: formData.price!,
-        stock: formData.stock!,
-        categories: [],
-      };
       const addedProduct = await addProduct(newProductData);
       dispatch(addProductSuccess(addedProduct));
       // Reset form on success
       setFormData({ description: "", price: 0, stock: 0 });
     } catch (err: any) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      dispatch(addProductFailure(errorMessage));
+      // Construct ErrorState payload
+      const errorPayload: ErrorState = {
+        message: errorMessage,
+        retryable: false, // Assume not retryable from UI
+        timestamp: Date.now(),
+      };
+      dispatch(addProductFailure(errorPayload));
       setError(`Failed to add product: ${errorMessage}`); // Show error locally
     } finally {
       setIsSubmitting(false);

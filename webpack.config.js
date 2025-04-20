@@ -66,6 +66,16 @@ module.exports = {
     historyApiFallback: true, // Redirect 404s to /index.html for SPA routing
     open: true, // Open browser automatically
     hot: true, // Enable Hot Module Replacement
+    proxy: [
+      {
+        context: ["/api"],
+        target: process.env.MOCK_API_URL || "http://mock_api:3001",
+        pathRewrite: { "^/api": "" },
+        changeOrigin: true,
+        secure: false,
+      },
+    ],
+    host: "0.0.0.0", // Allow connections from outside the container
   },
   // Use 'source-map' for development for better debugging
   // Use other options like 'cheap-module-source-map' for production if needed

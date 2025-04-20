@@ -28,6 +28,13 @@
         "cat3"
       ],
       "price": 120
+    },
+    {
+      "id": "f2e7",
+      "description": "Test products",
+      "price": 10,
+      "stock": 15,
+      "categories": []
     }
   ],
   "categories": [

@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent } from "react";
-import { Product } from "../productSlice";
+import { Product, UpdateProductData } from "../types";
 import { useAppDispatch } from "@/store/hooks";
 import {
   updateProductStart,
@@ -9,7 +9,8 @@ import {
   deleteProductSuccess,
   deleteProductFailure,
 } from "../productSlice";
-import { updateProduct, UpdateProductData, deleteProduct } from "../api";
+import { updateProduct, deleteProduct } from "../api";
+import { ErrorState } from "../types";
 import { validateProductData } from "../validation";
 import InputField from "@/components/InputField/InputField";
 import styles from "./ProductItem.module.css";
@@ -87,7 +88,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
       return;
     }
 
-    dispatch(updateProductStart());
+    dispatch(updateProductStart(product.id, changes));
     try {
       // Pass only the changed data to the API
       const updated = await updateProduct(product.id, changes);
@@ -96,7 +97,12 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
       setEditError(null);
     } catch (err: any) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      dispatch(updateProductFailure(product.id, errorMessage));
+      const errorPayload: ErrorState = {
+        message: errorMessage,
+        retryable: false,
+        timestamp: Date.now(),
+      };
+      dispatch(updateProductFailure(product.id, errorPayload));
       setEditError(`Save failed: ${errorMessage}`); // Show error locally in edit form
     }
   };
@@ -108,14 +114,20 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
       return;
     }
 
-    dispatch(deleteProductStart());
+    dispatch(deleteProductStart(product.id));
     try {
       await deleteProduct(product.id);
       dispatch(deleteProductSuccess(product.id));
       // No need to update local state as the item will be removed from the list
     } catch (err: any) {
+      // Construct ErrorState for failure action
       const errorMessage = err instanceof Error ? err.message : String(err);
-      dispatch(deleteProductFailure(product.id, errorMessage));
+      const errorPayload: ErrorState = {
+        message: errorMessage,
+        retryable: false, // Or determine based on error
+        timestamp: Date.now(),
+      };
+      dispatch(deleteProductFailure(product.id, errorPayload));
       // Global error is handled by ProductList
     }
   };

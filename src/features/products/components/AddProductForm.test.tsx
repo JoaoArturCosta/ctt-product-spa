@@ -9,6 +9,7 @@ import {
   addProductSuccess,
   addProductFailure,
 } from "../productSlice";
+import { ErrorState } from "../types"; // Updated path
 
 // Mock the API module
 jest.mock("../api");
@@ -118,7 +119,9 @@ describe("AddProductForm", () => {
     fireEvent.click(screen.getByRole("button", { name: /add product/i }));
 
     // Check that start action is dispatched
-    expect(store.dispatch).toHaveBeenCalledWith(addProductStart());
+    expect(store.dispatch).toHaveBeenCalledWith(
+      addProductStart(newProductData)
+    );
 
     // Check that API is called with correct data
     expect(mockAddProduct).toHaveBeenCalledTimes(1);
@@ -159,12 +162,26 @@ describe("AddProductForm", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /add product/i }));
 
-    expect(store.dispatch).toHaveBeenCalledWith(addProductStart());
+    const expectedProductData = {
+      description: "Fail Product",
+      price: 10,
+      stock: 1,
+      categories: [], // Assuming categories are empty if not filled
+    };
+    expect(store.dispatch).toHaveBeenCalledWith(
+      addProductStart(expectedProductData)
+    );
     expect(mockAddProduct).toHaveBeenCalledTimes(1);
 
     await waitFor(() => {
+      // Construct the expected ErrorState payload
+      const expectedErrorPayload: ErrorState = {
+        message: error.message,
+        retryable: false, // Match the implementation's default
+        timestamp: expect.any(Number), // Allow any timestamp
+      };
       expect(store.dispatch).toHaveBeenCalledWith(
-        addProductFailure(error.message)
+        addProductFailure(expectedErrorPayload)
       );
     });
 

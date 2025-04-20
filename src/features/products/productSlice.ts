@@ -1,21 +1,14 @@
 import { Action } from "redux";
+import {
+  Product,
+  ProductsState,
+  NewProductData,
+  UpdateProductData,
+  LoadingState,
+  ErrorState,
+} from "./types";
 
-// 1. Define Types/Interfaces
-export interface Product {
-  id: string; // uuid
-  stock: number;
-  description: string;
-  categories: string[]; // Array of category IDs
-  price: number;
-}
-
-export interface ProductsState {
-  items: Product[];
-  isLoading: boolean;
-  error: string | null;
-}
-
-// 2. Define Action Types
+// Action Types
 export const FETCH_PRODUCTS_START = "products/fetchStart";
 export const FETCH_PRODUCTS_SUCCESS = "products/fetchSuccess";
 export const FETCH_PRODUCTS_FAILURE = "products/fetchFailure";
@@ -28,53 +21,61 @@ export const UPDATE_PRODUCT_FAILURE = "products/updateFailure";
 export const DELETE_PRODUCT_START = "products/deleteStart";
 export const DELETE_PRODUCT_SUCCESS = "products/deleteSuccess";
 export const DELETE_PRODUCT_FAILURE = "products/deleteFailure";
+export const INVALIDATE_CACHE = "products/invalidateCache";
 
-// 3. Define Action Creators
-interface FetchProductsStartAction
+// Action Interfaces
+export interface FetchProductsStartAction
   extends Action<typeof FETCH_PRODUCTS_START> {}
-interface FetchProductsSuccessAction
+export interface FetchProductsSuccessAction
   extends Action<typeof FETCH_PRODUCTS_SUCCESS> {
   payload: Product[];
 }
-interface FetchProductsFailureAction
+export interface FetchProductsFailureAction
   extends Action<typeof FETCH_PRODUCTS_FAILURE> {
-  payload: string;
+  payload: ErrorState;
 }
 
-// Add Product Actions
-interface AddProductStartAction extends Action<typeof ADD_PRODUCT_START> {}
-interface AddProductSuccessAction extends Action<typeof ADD_PRODUCT_SUCCESS> {
-  payload: Product; // Payload is the newly added product with its ID
+export interface AddProductStartAction
+  extends Action<typeof ADD_PRODUCT_START> {
+  payload: NewProductData;
 }
-interface AddProductFailureAction extends Action<typeof ADD_PRODUCT_FAILURE> {
-  payload: string;
+export interface AddProductSuccessAction
+  extends Action<typeof ADD_PRODUCT_SUCCESS> {
+  payload: Product;
+}
+export interface AddProductFailureAction
+  extends Action<typeof ADD_PRODUCT_FAILURE> {
+  payload: ErrorState;
 }
 
-// Update Product Actions
-interface UpdateProductStartAction
-  extends Action<typeof UPDATE_PRODUCT_START> {}
-interface UpdateProductSuccessAction
+export interface UpdateProductStartAction
+  extends Action<typeof UPDATE_PRODUCT_START> {
+  payload: { id: string; data: UpdateProductData };
+}
+export interface UpdateProductSuccessAction
   extends Action<typeof UPDATE_PRODUCT_SUCCESS> {
-  payload: Product; // Payload is the updated product
+  payload: Product;
 }
-interface UpdateProductFailureAction
+export interface UpdateProductFailureAction
   extends Action<typeof UPDATE_PRODUCT_FAILURE> {
-  payload: { productId: string; error: string }; // Include ID for context
+  payload: { id: string; error: ErrorState };
 }
 
-// Delete Product Actions
-interface DeleteProductStartAction extends Action<typeof DELETE_PRODUCT_START> {
-  // Optionally include productId in meta if needed for optimistic UI
-  // meta: { productId: string };
+export interface DeleteProductStartAction
+  extends Action<typeof DELETE_PRODUCT_START> {
+  payload: string;
 }
-interface DeleteProductSuccessAction
+export interface DeleteProductSuccessAction
   extends Action<typeof DELETE_PRODUCT_SUCCESS> {
-  payload: { productId: string }; // Send ID of deleted product
+  payload: string;
 }
-interface DeleteProductFailureAction
+export interface DeleteProductFailureAction
   extends Action<typeof DELETE_PRODUCT_FAILURE> {
-  payload: { productId: string; error: string };
+  payload: { id: string; error: ErrorState };
 }
+
+export interface InvalidateCacheAction
+  extends Action<typeof INVALIDATE_CACHE> {}
 
 export type ProductActionTypes =
   | FetchProductsStartAction
@@ -88,9 +89,10 @@ export type ProductActionTypes =
   | UpdateProductFailureAction
   | DeleteProductStartAction
   | DeleteProductSuccessAction
-  | DeleteProductFailureAction;
-// Add other action types here
+  | DeleteProductFailureAction
+  | InvalidateCacheAction;
 
+// Action Creators
 export const fetchProductsStart = (): FetchProductsStartAction => ({
   type: FETCH_PRODUCTS_START,
 });
@@ -103,15 +105,17 @@ export const fetchProductsSuccess = (
 });
 
 export const fetchProductsFailure = (
-  error: string
+  error: ErrorState
 ): FetchProductsFailureAction => ({
   type: FETCH_PRODUCTS_FAILURE,
   payload: error,
 });
 
-// Add Product Action Creators
-export const addProductStart = (): AddProductStartAction => ({
+export const addProductStart = (
+  productData: NewProductData
+): AddProductStartAction => ({
   type: ADD_PRODUCT_START,
+  payload: productData,
 });
 
 export const addProductSuccess = (
@@ -121,14 +125,19 @@ export const addProductSuccess = (
   payload: product,
 });
 
-export const addProductFailure = (error: string): AddProductFailureAction => ({
+export const addProductFailure = (
+  error: ErrorState
+): AddProductFailureAction => ({
   type: ADD_PRODUCT_FAILURE,
   payload: error,
 });
 
-// Update Product Action Creators
-export const updateProductStart = (): UpdateProductStartAction => ({
+export const updateProductStart = (
+  id: string,
+  data: UpdateProductData
+): UpdateProductStartAction => ({
   type: UPDATE_PRODUCT_START,
+  payload: { id, data },
 });
 
 export const updateProductSuccess = (
@@ -139,109 +148,267 @@ export const updateProductSuccess = (
 });
 
 export const updateProductFailure = (
-  productId: string,
-  error: string
+  id: string,
+  error: ErrorState
 ): UpdateProductFailureAction => ({
   type: UPDATE_PRODUCT_FAILURE,
-  payload: { productId, error },
+  payload: { id, error },
 });
 
-// Delete Product Action Creators
-export const deleteProductStart =
-  (/* productId?: string */): DeleteProductStartAction => ({
-    type: DELETE_PRODUCT_START,
-    // meta: { productId }, // If using meta for optimistic UI
-  });
+export const deleteProductStart = (
+  productId: string
+): DeleteProductStartAction => ({
+  type: DELETE_PRODUCT_START,
+  payload: productId,
+});
 
 export const deleteProductSuccess = (
   productId: string
 ): DeleteProductSuccessAction => ({
   type: DELETE_PRODUCT_SUCCESS,
-  payload: { productId },
+  payload: productId,
 });
 
 export const deleteProductFailure = (
-  productId: string,
-  error: string
+  id: string,
+  error: ErrorState
 ): DeleteProductFailureAction => ({
   type: DELETE_PRODUCT_FAILURE,
-  payload: { productId, error },
+  payload: { id, error },
 });
 
-// 4. Define Initial State
-const initialState: ProductsState = {
-  items: [],
-  isLoading: false,
+export const invalidateCache = (): InvalidateCacheAction => ({
+  type: INVALIDATE_CACHE,
+});
+
+// Initial State
+export const initialState: ProductsState = {
+  byId: {},
+  allIds: [],
+  status: {
+    fetch: { isLoading: false, error: null, retryCount: 0 },
+    add: { isLoading: false, error: null, retryCount: 0 },
+    update: {},
+    delete: {},
+  },
   error: null,
+  lastUpdated: 0,
+  cache: {
+    isValid: false,
+    expiresAt: 0,
+  },
 };
 
-// 5. Define Reducer
+// Helper Functions
+const normalizeProducts = (products: Product[]): ProductsState["byId"] => {
+  return products.reduce((acc, product) => {
+    acc[product.id] = product;
+    return acc;
+  }, {} as ProductsState["byId"]);
+};
+
+const createLoadingState = (): LoadingState => ({
+  isLoading: true,
+  error: null,
+  retryCount: 0,
+  lastAttempt: Date.now(),
+});
+
+// Reducer
 export const productsReducer = (
   state = initialState,
   action: ProductActionTypes
 ): ProductsState => {
   switch (action.type) {
     case FETCH_PRODUCTS_START:
-      return { ...state, isLoading: true, error: null };
-    case FETCH_PRODUCTS_SUCCESS:
-      return { ...state, isLoading: false, items: action.payload, error: null };
-    case FETCH_PRODUCTS_FAILURE:
-      return { ...state, isLoading: false, error: action.payload };
+      return {
+        ...state,
+        status: {
+          ...state.status,
+          fetch: createLoadingState(),
+        },
+        error: null,
+      };
 
-    // Add cases
+    case FETCH_PRODUCTS_SUCCESS:
+      const normalizedProducts = normalizeProducts(action.payload);
+      return {
+        ...state,
+        byId: normalizedProducts,
+        allIds: action.payload.map((p) => p.id),
+        status: {
+          ...state.status,
+          fetch: { isLoading: false, error: null, retryCount: 0 },
+        },
+        lastUpdated: Date.now(),
+        cache: {
+          isValid: true,
+          expiresAt: Date.now() + 5 * 60 * 1000,
+        },
+        error: null,
+      };
+
+    case FETCH_PRODUCTS_FAILURE:
+      return {
+        ...state,
+        status: {
+          ...state.status,
+          fetch: {
+            ...state.status.fetch,
+            isLoading: false,
+            error: action.payload.message,
+            retryCount: state.status.fetch.retryCount + 1,
+          },
+        },
+        error: action.payload,
+      };
+
     case ADD_PRODUCT_START:
-      return { ...state, isLoading: true, error: null };
+      return {
+        ...state,
+        status: {
+          ...state.status,
+          add: createLoadingState(),
+        },
+        error: null,
+      };
+
     case ADD_PRODUCT_SUCCESS:
       return {
         ...state,
-        isLoading: false,
-        items: [...state.items, action.payload],
+        byId: {
+          ...state.byId,
+          [action.payload.id]: action.payload,
+        },
+        allIds: [...state.allIds, action.payload.id],
+        status: {
+          ...state.status,
+          add: { isLoading: false, error: null, retryCount: 0 },
+        },
+        lastUpdated: Date.now(),
         error: null,
       };
+
     case ADD_PRODUCT_FAILURE:
-      return { ...state, isLoading: false, error: action.payload };
+      return {
+        ...state,
+        status: {
+          ...state.status,
+          add: {
+            ...state.status.add,
+            isLoading: false,
+            error: action.payload.message,
+            retryCount: state.status.add.retryCount + 1,
+          },
+        },
+        error: action.payload,
+      };
 
-    // Update cases
     case UPDATE_PRODUCT_START:
-      return { ...state, isLoading: true, error: null };
-    case UPDATE_PRODUCT_SUCCESS:
       return {
         ...state,
-        isLoading: false,
-        items: state.items.map((item) =>
-          item.id === action.payload.id ? action.payload : item
-        ),
+        status: {
+          ...state.status,
+          update: {
+            ...state.status.update,
+            [action.payload.id]: createLoadingState(),
+          },
+        },
         error: null,
       };
-    case UPDATE_PRODUCT_FAILURE:
-      return { ...state, isLoading: false, error: action.payload.error };
 
-    // Delete cases
-    case DELETE_PRODUCT_START:
-      // Optionally indicate loading specific to an item, or just global loading
-      // Can also optionally remove item optimistically here using action.meta.productId
-      return { ...state, isLoading: true, error: null };
-    case DELETE_PRODUCT_SUCCESS:
+    case UPDATE_PRODUCT_SUCCESS:
+      const { [action.payload.id]: _, ...updateStatus } = state.status.update;
       return {
         ...state,
-        isLoading: false,
-        // Filter out the deleted item
-        items: state.items.filter(
-          (item) => item.id !== action.payload.productId
-        ),
+        byId: {
+          ...state.byId,
+          [action.payload.id]: action.payload,
+        },
+        status: {
+          ...state.status,
+          update: updateStatus,
+        },
+        lastUpdated: Date.now(),
         error: null,
       };
+
+    case UPDATE_PRODUCT_FAILURE:
+      return {
+        ...state,
+        status: {
+          ...state.status,
+          update: {
+            ...state.status.update,
+            [action.payload.id]: {
+              ...state.status.update[action.payload.id],
+              isLoading: false,
+              error: action.payload.error.message,
+              retryCount:
+                (state.status.update[action.payload.id]?.retryCount || 0) + 1,
+            },
+          },
+        },
+        error: action.payload.error,
+      };
+
+    case DELETE_PRODUCT_START:
+      return {
+        ...state,
+        status: {
+          ...state.status,
+          delete: {
+            ...state.status.delete,
+            [action.payload]: createLoadingState(),
+          },
+        },
+        error: null,
+      };
+
+    case DELETE_PRODUCT_SUCCESS:
+      const { [action.payload]: __, ...deleteStatus } = state.status.delete;
+      const { [action.payload]: ___, ...remainingProducts } = state.byId;
+      return {
+        ...state,
+        byId: remainingProducts,
+        allIds: state.allIds.filter((id) => id !== action.payload),
+        status: {
+          ...state.status,
+          delete: deleteStatus,
+        },
+        lastUpdated: Date.now(),
+        error: null,
+      };
+
     case DELETE_PRODUCT_FAILURE:
-      // Store error, potentially relating it to the specific product ID if needed
-      // If optimistic delete was done in START, need to add item back here
-      return { ...state, isLoading: false, error: action.payload.error };
+      return {
+        ...state,
+        status: {
+          ...state.status,
+          delete: {
+            ...state.status.delete,
+            [action.payload.id]: {
+              ...state.status.delete[action.payload.id],
+              isLoading: false,
+              error: action.payload.error.message,
+              retryCount:
+                (state.status.delete[action.payload.id]?.retryCount || 0) + 1,
+            },
+          },
+        },
+        error: action.payload.error,
+      };
+
+    case INVALIDATE_CACHE:
+      return {
+        ...state,
+        cache: {
+          isValid: false,
+          expiresAt: 0,
+        },
+      };
 
     default:
       return state;
   }
 };
-
-// 6. Define Selectors (Optional but recommended)
-// Example selector (can be expanded in a separate selectors file if needed)
-// import { RootState } from '@/store/reducer';
-// export const selectAllProducts = (state: RootState) => state.products.items;

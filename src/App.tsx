@@ -1,6 +1,6 @@
 import React from "react";
 import ProductList from "@/features/products/ProductList";
-import AddProductForm from "@/features/products/AddProductForm";
+import AddProductForm from "@/features/products/components/AddProductForm";
 import styles from "./App.module.css";
 
 const App: React.FC = () => {

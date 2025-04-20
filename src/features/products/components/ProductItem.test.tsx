@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import ProductItem from "./ProductItem";
-import { Product } from "../productSlice";
+import { Product, ErrorState } from "../types";
 import * as api from "../api"; // Mock the api module
 import {
   updateProductStart,
@@ -166,7 +166,9 @@ describe("ProductItem", () => {
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
 
     // Check actions and API call
-    expect(store.dispatch).toHaveBeenCalledWith(updateProductStart());
+    expect(store.dispatch).toHaveBeenCalledWith(
+      updateProductStart(mockProduct.id, expectedApiPayload)
+    );
     expect(mockUpdateProduct).toHaveBeenCalledTimes(1);
     expect(mockUpdateProduct).toHaveBeenCalledWith(
       mockProduct.id,
@@ -219,12 +221,20 @@ describe("ProductItem", () => {
     // Click Save
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
 
-    expect(store.dispatch).toHaveBeenCalledWith(updateProductStart());
-    expect(mockUpdateProduct).toHaveBeenCalledTimes(1);
+    const expectedApiPayload = { description: "Will Fail Update" }; // Define payload based on change
+    expect(store.dispatch).toHaveBeenCalledWith(
+      updateProductStart(mockProduct.id, expectedApiPayload)
+    );
 
     await waitFor(() => {
+      // Construct the expected ErrorState payload
+      const expectedErrorPayload: ErrorState = {
+        message: error.message,
+        retryable: false, // Assume not retryable for this test case
+        timestamp: expect.any(Number),
+      };
       expect(store.dispatch).toHaveBeenCalledWith(
-        updateProductFailure(mockProduct.id, error.message)
+        updateProductFailure(mockProduct.id, expectedErrorPayload)
       );
     });
 
@@ -251,7 +261,9 @@ describe("ProductItem", () => {
     );
 
     // Check actions and API call
-    expect(store.dispatch).toHaveBeenCalledWith(deleteProductStart());
+    expect(store.dispatch).toHaveBeenCalledWith(
+      deleteProductStart(mockProduct.id)
+    );
     expect(mockDeleteProduct).toHaveBeenCalledTimes(1);
     expect(mockDeleteProduct).toHaveBeenCalledWith(mockProduct.id);
 
@@ -291,12 +303,19 @@ describe("ProductItem", () => {
     fireEvent.click(screen.getByRole("button", { name: /delete/i }));
 
     expect(window.confirm).toHaveBeenCalledTimes(1);
-    expect(store.dispatch).toHaveBeenCalledWith(deleteProductStart());
+    expect(store.dispatch).toHaveBeenCalledWith(
+      deleteProductStart(mockProduct.id)
+    );
     expect(mockDeleteProduct).toHaveBeenCalledTimes(1);
 
     await waitFor(() => {
+      const expectedErrorPayload: ErrorState = {
+        message: error.message,
+        retryable: false, // Assuming delete failures aren't typically retryable from UI
+        timestamp: expect.any(Number),
+      };
       expect(store.dispatch).toHaveBeenCalledWith(
-        deleteProductFailure(mockProduct.id, error.message)
+        deleteProductFailure(mockProduct.id, expectedErrorPayload)
       );
     });
   });

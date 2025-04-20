@@ -1,5 +1,13 @@
 import {
+  Product,
+  ProductsState,
+  ErrorState,
+  NewProductData,
+  UpdateProductData,
+} from "./types";
+import {
   productsReducer,
+  initialState as actualInitialState,
   fetchProductsStart,
   fetchProductsSuccess,
   fetchProductsFailure,
@@ -12,8 +20,6 @@ import {
   deleteProductStart,
   deleteProductSuccess,
   deleteProductFailure,
-  ProductsState,
-  Product,
 } from "./productSlice";
 
 // Mock Product Data for testing
@@ -34,41 +40,67 @@ const mockProducts: Product[] = [
   },
 ];
 
-// Initial State for reference
-const initialState: ProductsState = {
-  items: [],
-  isLoading: false,
-  error: null,
-};
+// Use the actual initial state from the slice
+const initialStateForTest = actualInitialState;
 
-const newProduct: Product = {
-  id: "3", // ID would be assigned by the backend/json-server
+// Helper to create mock ErrorState
+const createMockError = (message: string): ErrorState => ({
+  message,
+  retryable: false,
+  timestamp: Date.now(),
+});
+
+const mockError = createMockError("Previous error");
+
+const newProductData: NewProductData = {
   description: "New Test Product",
   price: 30,
   stock: 15,
   categories: ["cat1", "cat3"],
 };
+const newProduct: Product = {
+  ...newProductData,
+  id: "3", // ID would be assigned by the backend/json-server
+};
 
-const updatedProduct: Product = {
-  ...mockProducts[0], // Base on the first mock product
+const updateData: UpdateProductData = {
   description: "Updated Test Product 1",
   stock: 8,
+};
+const updatedProduct: Product = {
+  ...mockProducts[0], // Base on the first mock product
+  ...updateData,
 };
 
 describe("productsReducer", () => {
   it("should return the initial state", () => {
     // Use an empty object for action type for initial state check
-    expect(productsReducer(undefined, {} as any)).toEqual(initialState);
+    expect(productsReducer(undefined, {} as any)).toEqual(actualInitialState);
   });
 
   it("should handle fetchProductsStart", () => {
     const previousState: ProductsState = {
-      ...initialState,
-      error: "Previous error",
+      ...initialStateForTest,
+      error: mockError,
+      status: {
+        ...initialStateForTest.status,
+        fetch: {
+          ...initialStateForTest.status.fetch,
+          error: mockError.message,
+        },
+      },
     };
     const expectedState: ProductsState = {
-      ...initialState,
-      isLoading: true,
+      ...initialStateForTest,
+      status: {
+        ...initialStateForTest.status,
+        fetch: {
+          isLoading: true,
+          error: null,
+          retryCount: 0,
+          lastAttempt: expect.any(Number),
+        },
+      },
       error: null,
     };
     expect(productsReducer(previousState, fetchProductsStart())).toEqual(
@@ -77,11 +109,34 @@ describe("productsReducer", () => {
   });
 
   it("should handle fetchProductsSuccess", () => {
-    const previousState: ProductsState = { ...initialState, isLoading: true };
+    const previousState: ProductsState = {
+      ...initialStateForTest,
+      status: {
+        ...initialStateForTest.status,
+        fetch: {
+          isLoading: true,
+          error: null,
+          retryCount: 0,
+          lastAttempt: expect.any(Number),
+        },
+      },
+    };
     const expectedState: ProductsState = {
-      ...initialState,
-      isLoading: false,
-      items: mockProducts,
+      ...initialStateForTest,
+      byId: {
+        "1": mockProducts[0],
+        "2": mockProducts[1],
+      },
+      allIds: ["1", "2"],
+      status: {
+        ...initialStateForTest.status,
+        fetch: { isLoading: false, error: null, retryCount: 0 },
+      },
+      lastUpdated: expect.any(Number),
+      cache: {
+        isValid: true,
+        expiresAt: expect.any(Number),
+      },
     };
     expect(
       productsReducer(previousState, fetchProductsSuccess(mockProducts))
@@ -89,43 +144,88 @@ describe("productsReducer", () => {
   });
 
   it("should handle fetchProductsFailure", () => {
-    const previousState: ProductsState = { ...initialState, isLoading: true };
-    const errorMsg = "Failed to fetch";
+    const previousState: ProductsState = {
+      ...initialStateForTest,
+      status: {
+        ...initialStateForTest.status,
+        fetch: {
+          isLoading: true,
+          error: null,
+          retryCount: 0,
+          lastAttempt: expect.any(Number),
+        },
+      },
+    };
+    const errorPayload = createMockError("Failed to fetch");
     const expectedState: ProductsState = {
-      ...initialState,
-      isLoading: false,
-      error: errorMsg,
+      ...initialStateForTest,
+      status: {
+        ...initialStateForTest.status,
+        fetch: {
+          isLoading: false,
+          error: errorPayload.message,
+          retryCount: 1,
+          lastAttempt: expect.any(Number),
+        },
+      },
+      error: errorPayload,
     };
     expect(
-      productsReducer(previousState, fetchProductsFailure(errorMsg))
+      productsReducer(previousState, fetchProductsFailure(errorPayload))
     ).toEqual(expectedState);
   });
 
   it("should handle addProductStart", () => {
     const previousState: ProductsState = {
-      ...initialState,
-      error: "Previous error",
+      ...initialStateForTest,
+      error: mockError,
     };
     const expectedState: ProductsState = {
-      ...initialState,
-      isLoading: true,
+      ...initialStateForTest,
+      status: {
+        ...initialStateForTest.status,
+        add: {
+          isLoading: true,
+          error: null,
+          retryCount: 0,
+          lastAttempt: expect.any(Number),
+        },
+      },
       error: null,
     };
-    expect(productsReducer(previousState, addProductStart())).toEqual(
-      expectedState
-    );
+    expect(
+      productsReducer(previousState, addProductStart(newProductData))
+    ).toEqual(expectedState);
   });
 
   it("should handle addProductSuccess", () => {
     const previousState: ProductsState = {
-      ...initialState,
-      items: mockProducts,
-      isLoading: true,
+      ...initialStateForTest,
+      byId: { "1": mockProducts[0], "2": mockProducts[1] },
+      allIds: ["1", "2"],
+      status: {
+        ...initialStateForTest.status,
+        add: {
+          isLoading: true,
+          error: null,
+          retryCount: 0,
+          lastAttempt: expect.any(Number),
+        },
+      },
     };
     const expectedState: ProductsState = {
-      ...initialState,
-      isLoading: false,
-      items: [...mockProducts, newProduct],
+      ...initialStateForTest,
+      byId: {
+        "1": mockProducts[0],
+        "2": mockProducts[1],
+        "3": newProduct,
+      },
+      allIds: ["1", "2", "3"],
+      status: {
+        ...initialStateForTest.status,
+        add: { isLoading: false, error: null, retryCount: 0 },
+      },
+      lastUpdated: expect.any(Number),
     };
     expect(
       productsReducer(previousState, addProductSuccess(newProduct))
@@ -133,45 +233,92 @@ describe("productsReducer", () => {
   });
 
   it("should handle addProductFailure", () => {
-    const previousState: ProductsState = { ...initialState, isLoading: true };
-    const errorMsg = "Failed to add";
-    const expectedState: ProductsState = {
-      ...initialState,
-      isLoading: false,
-      error: errorMsg,
+    const previousState: ProductsState = {
+      ...initialStateForTest,
+      status: {
+        ...initialStateForTest.status,
+        add: {
+          isLoading: true,
+          error: null,
+          retryCount: 0,
+          lastAttempt: expect.any(Number),
+        },
+      },
     };
-    expect(productsReducer(previousState, addProductFailure(errorMsg))).toEqual(
-      expectedState
-    );
+    const errorPayload = createMockError("Failed to add");
+    const expectedState: ProductsState = {
+      ...initialStateForTest,
+      status: {
+        ...initialStateForTest.status,
+        add: {
+          isLoading: false,
+          error: errorPayload.message,
+          retryCount: 1,
+          lastAttempt: expect.any(Number),
+        },
+      },
+      error: errorPayload,
+    };
+    expect(
+      productsReducer(previousState, addProductFailure(errorPayload))
+    ).toEqual(expectedState);
   });
 
   it("should handle updateProductStart", () => {
     const previousState: ProductsState = {
-      ...initialState,
-      error: "Previous error",
+      ...initialStateForTest,
+      error: mockError,
     };
     const expectedState: ProductsState = {
-      ...initialState,
-      isLoading: true,
+      ...initialStateForTest,
+      status: {
+        ...initialStateForTest.status,
+        update: {
+          [mockProducts[0].id]: {
+            isLoading: true,
+            error: null,
+            retryCount: 0,
+            lastAttempt: expect.any(Number),
+          },
+        },
+      },
       error: null,
     };
-    expect(productsReducer(previousState, updateProductStart())).toEqual(
-      expectedState
-    );
+    expect(
+      productsReducer(
+        previousState,
+        updateProductStart(mockProducts[0].id, updateData)
+      )
+    ).toEqual(expectedState);
   });
 
   it("should handle updateProductSuccess", () => {
     // State contains both original mock products
     const previousState: ProductsState = {
-      ...initialState,
-      items: mockProducts,
-      isLoading: true,
+      ...initialStateForTest,
+      byId: { "1": mockProducts[0], "2": mockProducts[1] },
+      allIds: ["1", "2"],
+      status: {
+        ...initialStateForTest.status,
+        update: {
+          "1": {
+            isLoading: true,
+            error: null,
+            retryCount: 0,
+            lastAttempt: expect.any(Number),
+          },
+        },
+      },
     };
     const expectedState: ProductsState = {
-      ...initialState,
-      isLoading: false,
-      // The first product should be replaced by updatedProduct
-      items: [updatedProduct, mockProducts[1]],
+      ...initialStateForTest,
+      byId: { "1": updatedProduct, "2": mockProducts[1] },
+      allIds: ["1", "2"],
+      status: {
+        ...initialStateForTest.status,
+        update: {},
+      },
+      lastUpdated: expect.any(Number),
     };
     expect(
       productsReducer(previousState, updateProductSuccess(updatedProduct))
@@ -179,58 +326,107 @@ describe("productsReducer", () => {
   });
 
   it("should handle updateProductFailure", () => {
-    const previousState: ProductsState = {
-      ...initialState,
-      items: mockProducts,
-      isLoading: true,
-    };
-    const errorMsg = "Failed to update";
     const productIdToFail = mockProducts[0].id;
+    const previousState: ProductsState = {
+      ...initialStateForTest,
+      byId: { "1": mockProducts[0], "2": mockProducts[1] },
+      allIds: ["1", "2"],
+      status: {
+        ...initialStateForTest.status,
+        update: {
+          [productIdToFail]: {
+            isLoading: true,
+            error: null,
+            retryCount: 0,
+            lastAttempt: expect.any(Number),
+          },
+        },
+      },
+    };
+    const errorPayload = createMockError("Failed to update");
     const expectedState: ProductsState = {
-      ...initialState,
-      items: mockProducts,
-      isLoading: false,
-      error: errorMsg,
+      ...initialStateForTest,
+      byId: { "1": mockProducts[0], "2": mockProducts[1] },
+      allIds: ["1", "2"],
+      status: {
+        ...initialStateForTest.status,
+        update: {
+          [productIdToFail]: {
+            isLoading: false,
+            error: errorPayload.message,
+            retryCount: 1,
+            lastAttempt: expect.any(Number),
+          },
+        },
+      },
+      error: errorPayload,
     };
     expect(
       productsReducer(
         previousState,
-        updateProductFailure(productIdToFail, errorMsg)
+        updateProductFailure(productIdToFail, errorPayload)
       )
     ).toEqual(expectedState);
   });
 
   it("should handle deleteProductStart", () => {
+    const productIdToDelete = mockProducts[0].id;
     const previousState: ProductsState = {
-      ...initialState,
-      items: mockProducts,
-      error: "Previous error",
+      ...initialStateForTest,
+      byId: { "1": mockProducts[0], "2": mockProducts[1] },
+      allIds: ["1", "2"],
+      error: mockError,
     };
     const expectedState: ProductsState = {
-      ...initialState,
-      items: mockProducts,
-      isLoading: true,
+      ...initialStateForTest,
+      byId: { "1": mockProducts[0], "2": mockProducts[1] },
+      allIds: ["1", "2"],
+      status: {
+        ...initialStateForTest.status,
+        delete: {
+          [productIdToDelete]: {
+            isLoading: true,
+            error: null,
+            retryCount: 0,
+            lastAttempt: expect.any(Number),
+          },
+        },
+      },
       error: null,
     };
-    // Note: items might be handled optimistically here in a real app
-    expect(productsReducer(previousState, deleteProductStart())).toEqual(
-      expectedState
-    );
+    expect(
+      productsReducer(previousState, deleteProductStart(productIdToDelete))
+    ).toEqual(expectedState);
   });
 
   it("should handle deleteProductSuccess", () => {
     const productIdToDelete = mockProducts[0].id;
     // State contains both original mock products
     const previousState: ProductsState = {
-      ...initialState,
-      items: mockProducts,
-      isLoading: true,
+      ...initialStateForTest,
+      byId: { "1": mockProducts[0], "2": mockProducts[1] },
+      allIds: ["1", "2"],
+      status: {
+        ...initialStateForTest.status,
+        delete: {
+          [productIdToDelete]: {
+            isLoading: true,
+            error: null,
+            retryCount: 0,
+            lastAttempt: expect.any(Number),
+          },
+        },
+      },
     };
     const expectedState: ProductsState = {
-      ...initialState,
-      isLoading: false,
-      // Only the second product should remain
-      items: [mockProducts[1]],
+      ...initialStateForTest,
+      byId: { "2": mockProducts[1] },
+      allIds: ["2"],
+      status: {
+        ...initialStateForTest.status,
+        delete: {},
+      },
+      lastUpdated: expect.any(Number),
     };
     expect(
       productsReducer(previousState, deleteProductSuccess(productIdToDelete))
@@ -238,24 +434,45 @@ describe("productsReducer", () => {
   });
 
   it("should handle deleteProductFailure", () => {
-    const previousState: ProductsState = {
-      ...initialState,
-      items: mockProducts,
-      isLoading: true,
-    };
-    const errorMsg = "Failed to delete";
     const productIdToFail = mockProducts[0].id;
-    const expectedState: ProductsState = {
-      ...initialState,
-      items: mockProducts,
-      isLoading: false,
-      error: errorMsg,
+    const previousState: ProductsState = {
+      ...initialStateForTest,
+      byId: { "1": mockProducts[0], "2": mockProducts[1] },
+      allIds: ["1", "2"],
+      status: {
+        ...initialStateForTest.status,
+        delete: {
+          [productIdToFail]: {
+            isLoading: true,
+            error: null,
+            retryCount: 0,
+            lastAttempt: expect.any(Number),
+          },
+        },
+      },
     };
-    // Note: If using optimistic delete, the item would need to be added back here.
+    const errorPayload = createMockError("Failed to delete");
+    const expectedState: ProductsState = {
+      ...initialStateForTest,
+      byId: { "1": mockProducts[0], "2": mockProducts[1] },
+      allIds: ["1", "2"],
+      status: {
+        ...initialStateForTest.status,
+        delete: {
+          [productIdToFail]: {
+            isLoading: false,
+            error: errorPayload.message,
+            retryCount: 1,
+            lastAttempt: expect.any(Number),
+          },
+        },
+      },
+      error: errorPayload,
+    };
     expect(
       productsReducer(
         previousState,
-        deleteProductFailure(productIdToFail, errorMsg)
+        deleteProductFailure(productIdToFail, errorPayload)
       )
     ).toEqual(expectedState);
   });

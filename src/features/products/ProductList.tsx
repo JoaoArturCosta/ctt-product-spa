@@ -6,16 +6,22 @@ import {
   fetchProductsFailure,
 } from "./productSlice";
 import { fetchProducts } from "./api";
+import { ErrorState } from "./types";
 import ProductItem from "./components/ProductItem";
 import styles from "./ProductList.module.css";
 
 const ProductList: React.FC = () => {
   const dispatch = useAppDispatch();
   const {
-    items: products,
-    isLoading,
-    error,
+    byId,
+    allIds,
+    status,
+    error: globalError,
   } = useAppSelector((state) => state.products);
+  const { isLoading, error: fetchError } = status.fetch;
+
+  // Derive products array
+  const products = allIds.map((id) => byId[id]);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -24,9 +30,13 @@ const ProductList: React.FC = () => {
         const data = await fetchProducts();
         dispatch(fetchProductsSuccess(data));
       } catch (err: any) {
-        // Ensure error is stringified for the state
         const errorMessage = err instanceof Error ? err.message : String(err);
-        dispatch(fetchProductsFailure(errorMessage));
+        const errorPayload: ErrorState = {
+          message: errorMessage,
+          retryable: true,
+          timestamp: Date.now(),
+        };
+        dispatch(fetchProductsFailure(errorPayload));
       }
     };
 
@@ -37,10 +47,10 @@ const ProductList: React.FC = () => {
     return <div className={styles.loadingMessage}>Loading products...</div>;
   }
 
-  if (error) {
+  if (fetchError) {
     return (
       <div className={styles.errorMessage}>
-        <strong>Error:</strong> {error}
+        <strong>Error:</strong> {fetchError || "Unknown fetch error"}
       </div>
     );
   }

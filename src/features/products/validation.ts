@@ -1,6 +1,6 @@
-import { UpdateProductData } from "./api";
+import { UpdateProductData } from "./types";
 
-export type ProductFormData = Omit<UpdateProductData, "categories">; // Use Omit for clarity
+export type ProductFormData = Omit<UpdateProductData, "categories">; // Use UpdateProductData type
 
 /**
  * Validates product form data (description, price, stock).
