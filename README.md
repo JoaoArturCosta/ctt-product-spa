@@ -23,7 +23,7 @@ The application allows users to view, add, edit, and delete products fetched fro
 1.  **Clone the repository:**
 
     ```bash
-    git clone [<your-repo-url>](https://github.com/JoaoArturCosta/ctt-product-spa.git)
+    git clone https://github.com/JoaoArturCosta/ctt-product-spa.git
     cd ctt-product-spa
     ```
 
