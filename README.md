@@ -23,8 +23,8 @@ The application allows users to view, add, edit, and delete products fetched fro
 1.  **Clone the repository:**
 
     ```bash
-    git clone <your-repo-url> # Replace with your repository URL
-    cd <repository-directory-name> # Replace with the actual directory name
+    git clone [<your-repo-url>](https://github.com/JoaoArturCosta/ctt-product-spa.git)
+    cd ctt-product-spa
     ```
 
 2.  **Build and run the containers:**
