@@ -8,6 +8,7 @@ import {
 import { fetchProducts } from "./api";
 import { ErrorState } from "./types";
 import ProductItem from "./components/ProductItem";
+import ProductItemSkeleton from "./components/ProductItemSkeleton";
 import styles from "./ProductList.module.css";
 
 const ProductList: React.FC = () => {
@@ -56,9 +57,20 @@ const ProductList: React.FC = () => {
     // If cache is valid, we don't need to do anything. The existing data is used.
   }, [dispatch, cache.isValid, cache.expiresAt, isLoading]); // Add cache and isLoading to dependency array
 
+  const renderSkeletons = (count: number) => {
+    return Array.from({ length: count }).map((_, index) => (
+      <ProductItemSkeleton key={`skeleton-${index}`} />
+    ));
+  };
+
   if (isLoading && products.length === 0) {
-    // Show loading only if there are no products to display yet
-    return <div className={styles.loadingMessage}>Loading products...</div>;
+    // Show loading skeletons if loading and no products are available yet
+    return (
+      <div>
+        <h2 className={styles.listTitle}>Product List</h2>
+        <ul className={styles.productList}>{renderSkeletons(5)}</ul>
+      </div>
+    );
   }
 
   if (fetchError) {
