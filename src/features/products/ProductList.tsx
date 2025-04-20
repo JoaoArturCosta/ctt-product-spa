@@ -13,14 +13,14 @@ import styles from "./ProductList.module.css";
 
 const ProductList: React.FC = () => {
   const dispatch = useAppDispatch();
-  const {
-    byId,
-    allIds,
-    status,
-    error: globalError,
-    cache,
-  } = useAppSelector((state) => state.products);
-  const { isLoading, error: fetchError } = status.fetch;
+
+  // Select specific state parts needed
+  const allIds = useAppSelector((state) => state.products.allIds);
+  const byId = useAppSelector((state) => state.products.byId);
+  const fetchStatus = useAppSelector((state) => state.products.status.fetch);
+  const cache = useAppSelector((state) => state.products.cache);
+
+  const { isLoading, error: fetchError } = fetchStatus;
 
   // Derive products array
   const products = allIds.map((id) => byId[id]);
@@ -42,20 +42,17 @@ const ProductList: React.FC = () => {
       }
     };
 
-    // Check cache before fetching
+    // Check cache only on mount
     const now = Date.now();
     const isCacheValid =
       cache.isValid && cache.expiresAt && cache.expiresAt > now;
 
-    // Fetch only if cache is not valid or if currently loading (e.g., initial load or failed retry)
-    if (!isCacheValid || isLoading) {
-      // Only fetch if not already loading to prevent redundant fetches
-      if (!isLoading) {
-        loadProducts();
-      }
+    // Fetch only on mount if cache is not valid
+    if (!isCacheValid) {
+      loadProducts();
     }
     // If cache is valid, we don't need to do anything. The existing data is used.
-  }, [dispatch, cache.isValid, cache.expiresAt, isLoading]); // Add cache and isLoading to dependency array
+  }, [dispatch]); // Run only on mount (or when dispatch changes, which is stable)
 
   const renderSkeletons = (count: number) => {
     return Array.from({ length: count }).map((_, index) => (

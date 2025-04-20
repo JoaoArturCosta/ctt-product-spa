@@ -286,10 +286,7 @@ export const productsReducer = (
           add: { isLoading: false, error: null, retryCount: 0 },
         },
         lastUpdated: Date.now(),
-        cache: {
-          isValid: false,
-          expiresAt: 0,
-        },
+        cache: { isValid: false, expiresAt: 0 },
         error: null,
       };
 
@@ -334,10 +331,7 @@ export const productsReducer = (
           update: updateStatus,
         },
         lastUpdated: Date.now(),
-        cache: {
-          isValid: false,
-          expiresAt: 0,
-        },
+        cache: { isValid: false, expiresAt: 0 },
         error: null,
       };
 
@@ -374,23 +368,33 @@ export const productsReducer = (
       };
 
     case DELETE_PRODUCT_SUCCESS:
-      const { [action.payload]: __, ...deleteStatus } = state.status.delete;
-      const { [action.payload]: ___, ...remainingProducts } = state.byId;
-      return {
+      const idToDelete = action.payload;
+
+      // Explicitly create a new object for byId without the deleted key
+      const newById = { ...state.byId };
+      delete newById[idToDelete];
+
+      // Explicitly create a new array for allIds without the deleted ID
+      const newAllIds = state.allIds.filter((id) => id !== idToDelete);
+
+      // Explicitly create a new object for delete status without the deleted key
+      const newDeleteStatus = { ...state.status.delete };
+      delete newDeleteStatus[idToDelete];
+
+      const newState = {
         ...state,
-        byId: remainingProducts,
-        allIds: state.allIds.filter((id) => id !== action.payload),
+        byId: newById, // Use the new byId object
+        allIds: newAllIds, // Use the new allIds array
         status: {
           ...state.status,
-          delete: deleteStatus,
+          delete: newDeleteStatus, // Use the new delete status object
         },
         lastUpdated: Date.now(),
-        cache: {
-          isValid: false,
-          expiresAt: 0,
-        },
+        cache: { isValid: false, expiresAt: 0 },
         error: null,
       };
+
+      return newState; // Return the new state
 
     case DELETE_PRODUCT_FAILURE:
       return {
