@@ -286,6 +286,10 @@ export const productsReducer = (
           add: { isLoading: false, error: null, retryCount: 0 },
         },
         lastUpdated: Date.now(),
+        cache: {
+          isValid: false,
+          expiresAt: 0,
+        },
         error: null,
       };
 
@@ -330,6 +334,10 @@ export const productsReducer = (
           update: updateStatus,
         },
         lastUpdated: Date.now(),
+        cache: {
+          isValid: false,
+          expiresAt: 0,
+        },
         error: null,
       };
 
@@ -377,6 +385,10 @@ export const productsReducer = (
           delete: deleteStatus,
         },
         lastUpdated: Date.now(),
+        cache: {
+          isValid: false,
+          expiresAt: 0,
+        },
         error: null,
       };
 

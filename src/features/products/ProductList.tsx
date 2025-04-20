@@ -17,6 +17,7 @@ const ProductList: React.FC = () => {
     allIds,
     status,
     error: globalError,
+    cache,
   } = useAppSelector((state) => state.products);
   const { isLoading, error: fetchError } = status.fetch;
 
@@ -40,10 +41,23 @@ const ProductList: React.FC = () => {
       }
     };
 
-    loadProducts();
-  }, [dispatch]);
+    // Check cache before fetching
+    const now = Date.now();
+    const isCacheValid =
+      cache.isValid && cache.expiresAt && cache.expiresAt > now;
 
-  if (isLoading) {
+    // Fetch only if cache is not valid or if currently loading (e.g., initial load or failed retry)
+    if (!isCacheValid || isLoading) {
+      // Only fetch if not already loading to prevent redundant fetches
+      if (!isLoading) {
+        loadProducts();
+      }
+    }
+    // If cache is valid, we don't need to do anything. The existing data is used.
+  }, [dispatch, cache.isValid, cache.expiresAt, isLoading]); // Add cache and isLoading to dependency array
+
+  if (isLoading && products.length === 0) {
+    // Show loading only if there are no products to display yet
     return <div className={styles.loadingMessage}>Loading products...</div>;
   }
 
